@@ -1,0 +1,54 @@
+name:                ghcjs-react
+version:             0.1.0.0
+synopsis:            Yet another React binding for GHCJS
+description:
+license:             MIT
+license-file:        LICENSE
+author:              Ian Duncan
+maintainer:          ian@iankduncan.com
+-- copyright:           
+category:            Web
+build-type:          Simple
+-- extra-source-files:  
+cabal-version:       >=1.12
+
+-- executable             react-demo
+--   default-language:    Haskell2010
+--   main-is:              demo/Main.hs
+--   build-depends:        base,
+--                         mtl,
+--                         text,
+--                         ghcjs-base,
+--                         ghcjs-dom,
+--                         ghcjs-react
+
+flag development
+  description:         Use unminified React sources with warnings and extended validations enabled
+  manual:              True
+  default:             False
+
+library
+  default-language:    Haskell2010
+  exposed-modules:     React,
+                       React.DOM
+  -- other-modules:       
+  -- other-extensions:    
+  build-depends:       base >=4.8 && < 5,
+                       ghcjs-base,
+                       ghcjs-dom,
+                       unordered-containers,
+                       text,
+                       transformers,
+                       vector,
+                       mtl
+  hs-source-dirs:      src
+  default-language:    Haskell2010
+  if flag(development)
+    js-sources:        js/react-15.0.2.js,
+                       js/react-dom-15.0.2.js,
+                       js/wrappers.js
+  else
+    js-sources:        js/react-15.0.2.min.js,
+                       js/react-dom-15.0.2.min.js,
+                       js/wrappers.js
+
