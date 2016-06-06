@@ -708,3 +708,18 @@ makeClass newName n = do
   where
     newName' = mkName newName
     noInlineFun = PragmaD $ InlineP newName' NoInline FunLike AllPhases
+
+foreign import javascript unsafe "$1.props[$2]" js_getProp :: This ps st -> JSString -> IO JSVal
+
+getProp :: FromJSVal p => This ps st -> PropName p -> Maybe p
+getProp this (PropName p) = unsafePerformIO $ do
+  p <- js_getProp this p
+  fromJSVal p
+
+inheritProp :: This ps st -> PropName p -> Prop
+inheritProp this (PropName p) = inheritProp' this p
+
+inheritProp' :: This ps st -> JSString -> Prop
+inheritProp' this str = unsafePerformIO $ do
+  p <- js_getProp this str
+  return $ Prop str p
