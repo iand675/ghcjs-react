@@ -1,7 +1,8 @@
-{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE MultiParamTypeClasses      #-}
+{-# LANGUAGE OverloadedStrings          #-}
+{-# LANGUAGE TemplateHaskell            #-}
+{-# LANGUAGE TypeFamilies               #-}
 module React where
 import Control.Monad.Reader
 import Control.Monad.State
@@ -28,6 +29,7 @@ import GHCJS.Marshal.Pure
 import GHCJS.Types
 import qualified JavaScript.Object as Object
 import JavaScript.Array
+import Language.Haskell.TH
 import System.IO.Unsafe
 import Unsafe.Coerce
 
@@ -696,3 +698,13 @@ unsafeGetRef str = do
   return $! if isTruthy ref
     then Just $ ReactComponent $ This ref
     else Nothing
+
+makeClass :: String -> ExpQ -> DecsQ
+makeClass newName n = do
+  ds <- funD newName'
+        [ clause [] (normalB [e| createClass . fst . unsafePerformIO . buildSpec $ $(n)|]) []
+        ]
+  return $ [ds, noInlineFun]
+  where
+    newName' = mkName newName
+    noInlineFun = PragmaD $ InlineP newName' NoInline FunLike AllPhases
