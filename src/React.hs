@@ -593,8 +593,8 @@ class SyntheticEvent e where
   timeStamp :: MonadIO m => e -> m Int
   timeStamp = liftIO . js_timeStamp . eventVal
 
-  type_ :: MonadIO m => e -> m JSString
-  type_ = liftIO . js_type . eventVal
+  eventType_ :: MonadIO m => e -> m JSString
+  eventType_ = liftIO . js_type . eventVal
 
 {-
 class ErrorEvent e where {}
@@ -709,7 +709,7 @@ makeClass newName n = do
     newName' = mkName newName
     noInlineFun = PragmaD $ InlineP newName' NoInline FunLike AllPhases
 
-foreign import javascript unsafe "$1.props[$2]" js_getProp :: This ps st -> JSString -> IO JSVal
+foreign import javascript unsafe "($1 ? $1.props[$2] : null)" js_getProp :: This ps st -> JSString -> IO JSVal
 
 getProp :: FromJSVal p => This ps st -> PropName p -> Maybe p
 getProp this (PropName p) = unsafePerformIO $ do
