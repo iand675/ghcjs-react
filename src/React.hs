@@ -7,6 +7,7 @@ module React where
 import Control.Monad.Reader
 import Control.Monad.State
 import Data.Foldable (traverse_)
+import qualified Data.Foldable as F
 import Data.Traversable
 import Data.IORef
 import qualified Data.JSString as JSString
@@ -132,8 +133,8 @@ nullish ma = case ma of
   Nothing -> jsNull
   Just a -> jsval a
 
-createElement :: (Applicative t, Foldable t) => ReactClass ps -> t Prop -> Maybe (Array ReactElement) -> ReactElement
-createElement t ps = createElement' t (buildProps ps)
+createElement :: (Applicative t, Foldable t, Foldable elems) => ReactClass ps -> t Prop -> elems ReactElement -> ReactElement
+createElement t ps es = createElement' t (buildProps ps) (if Prelude.null es then Nothing else Just $ array $ F.toList es)
 
 createElement' :: ReactClass ps -> Props ps -> Maybe (Array ReactElement) -> ReactElement
 createElement' t ps ma = js_createElement (toReactElement t) ps $ case ma of
