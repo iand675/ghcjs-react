@@ -1,7 +1,10 @@
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE OverloadedStrings     #-}
+{-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleContexts      #-}
+{-# LANGUAGE RankNTypes            #-}
+{-# LANGUAGE ScopedTypeVariables   #-}
+{-# LANGUAGE FunctionalDependencies #-}
 module React.DOM where
 import qualified Data.Foldable as F
 import Data.Proxy
@@ -22,14 +25,25 @@ mkEmptyElem str ps = js_elem str (buildProps ps) jsUndefined
 class ElementOrProp f t where
   symbolName :: JSString -> (f, Proxy t)
 
-instance (Applicative t, Foldable t) => ElementOrProp (t Prop -> [ReactElement] -> ReactElement) a where
+instance (Applicative t, Foldable t, Foldable elems) => ElementOrProp (t Prop -> elems ReactElement -> ReactElement) a where
   symbolName n = (mkElem n, Proxy)
 
 instance (Applicative t, Foldable t) => ElementOrProp (t Prop -> ReactElement) a where
   symbolName n = (mkEmptyElem n, Proxy)
 
-instance ElementOrProp (PropName p) p where
+instance ElementOrProp (PropName t) t where
   symbolName n = (PropName n, Proxy)
+
+instance PToJSVal t => ElementOrProp (t -> Prop) t where
+  symbolName n = ((.:) (PropName n :: PropName t), Proxy)
+
+class IsProp f t | f -> t where
+  mkProp :: JSString -> f
+
+instance IsProp (PropName t) t where
+  mkProp = PropName
+instance PToJSVal t => IsProp (t -> Prop) t where
+  mkProp str = (.:) (PropName str :: PropName t)
 
 a_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 a_ = mkElem "a"
@@ -395,888 +409,888 @@ wbr_ :: (Applicative t, Foldable t) => t Prop -> ReactElement
 wbr_ = mkEmptyElem "wbr"
 
 
-accept_ :: PropName JSString
-accept_ = PropName "accept"
+accept_ :: IsProp p JSString => p
+accept_ = mkProp "accept"
 
-acceptCharset_ :: PropName JSString
-acceptCharset_ = PropName "acceptCharset"
+acceptCharset_ :: IsProp p JSString => p
+acceptCharset_ = mkProp "acceptCharset"
 
-accessKey_ :: PropName JSString
-accessKey_ = PropName "accessKey"
+accessKey_ :: IsProp p JSString => p
+accessKey_ = mkProp "accessKey"
 
-action_ :: PropName JSString
-action_ = PropName "action"
+action_ :: IsProp p JSString => p
+action_ = mkProp "action"
 
-allowFullScreen_ :: PropName JSString
-allowFullScreen_ = PropName "allowFullScreen"
+allowFullScreen_ :: IsProp p JSString => p
+allowFullScreen_ = mkProp "allowFullScreen"
 
-allowTransparency_ :: PropName JSString
-allowTransparency_ = PropName "allowTransparency"
+allowTransparency_ :: IsProp p JSString => p
+allowTransparency_ = mkProp "allowTransparency"
 
-alt_ :: PropName JSString
-alt_ = PropName "alt"
+alt_ :: IsProp p JSString => p
+alt_ = mkProp "alt"
 
-async_ :: PropName JSString
-async_ = PropName "async"
+async_ :: IsProp p JSString => p
+async_ = mkProp "async"
 
-autoComplete_ :: PropName JSString
-autoComplete_ = PropName "autoComplete"
+autoComplete_ :: IsProp p JSString => p
+autoComplete_ = mkProp "autoComplete"
 
-autoFocus_ :: PropName JSString
-autoFocus_ = PropName "autoFocus"
+autoFocus_ :: IsProp p JSString => p
+autoFocus_ = mkProp "autoFocus"
 
-autoPlay_ :: PropName JSString
-autoPlay_ = PropName "autoPlay"
+autoPlay_ :: IsProp p JSString => p
+autoPlay_ = mkProp "autoPlay"
 
-capture_ :: PropName JSString
-capture_ = PropName "capture"
+capture_ :: IsProp p JSString => p
+capture_ = mkProp "capture"
 
-cellPadding_ :: PropName JSString
-cellPadding_ = PropName "cellPadding"
+cellPadding_ :: IsProp p JSString => p
+cellPadding_ = mkProp "cellPadding"
 
-cellSpacing_ :: PropName JSString
-cellSpacing_ = PropName "cellSpacing"
+cellSpacing_ :: IsProp p JSString => p
+cellSpacing_ = mkProp "cellSpacing"
 
-challenge_ :: PropName JSString
-challenge_ = PropName "challenge"
+challenge_ :: IsProp p JSString => p
+challenge_ = mkProp "challenge"
 
-charSet_ :: PropName JSString
-charSet_ = PropName "charSet"
+charSet_ :: IsProp p JSString => p
+charSet_ = mkProp "charSet"
 
-checked_ :: PropName JSString
-checked_ = PropName "checked"
+checked_ :: IsProp p JSString => p
+checked_ = mkProp "checked"
 
 cite_ :: ElementOrProp p JSString => p
 cite_ = fst (symbolName "cite" :: ElementOrProp p JSString => (p, Proxy JSString))
 
-classID_ :: PropName JSString
-classID_ = PropName "classID"
+classID_ :: IsProp p JSString => p
+classID_ = mkProp "classID"
 
-className_ :: PropName JSString
-className_ = PropName "className"
+className_ :: IsProp p JSString => p
+className_ = mkProp "className"
 
-colSpan_ :: PropName JSString
-colSpan_ = PropName "colSpan"
+colSpan_ :: IsProp p JSString => p
+colSpan_ = mkProp "colSpan"
 
-cols_ :: PropName JSString
-cols_ = PropName "cols"
+cols_ :: IsProp p JSString => p
+cols_ = mkProp "cols"
 
-content_ :: PropName JSString
-content_ = PropName "content"
+content_ :: IsProp p JSString => p
+content_ = mkProp "content"
 
-contentEditable_ :: PropName JSString
-contentEditable_ = PropName "contentEditable"
+contentEditable_ :: IsProp p JSString => p
+contentEditable_ = mkProp "contentEditable"
 
-contextMenu_ :: PropName JSString
-contextMenu_ = PropName "contextMenu"
+contextMenu_ :: IsProp p JSString => p
+contextMenu_ = mkProp "contextMenu"
 
-controls_ :: PropName JSString
-controls_ = PropName "controls"
+controls_ :: IsProp p JSString => p
+controls_ = mkProp "controls"
 
-coords_ :: PropName JSString
-coords_ = PropName "coords"
+coords_ :: IsProp p JSString => p
+coords_ = mkProp "coords"
 
-crossOrigin_ :: PropName JSString
-crossOrigin_ = PropName "crossOrigin"
+crossOrigin_ :: IsProp p JSString => p
+crossOrigin_ = mkProp "crossOrigin"
 
 data_ :: ElementOrProp p JSString => p
 data_ = fst (symbolName "data" :: ElementOrProp p JSString => (p, Proxy JSString))
 
-dateTime_ :: PropName JSString
-dateTime_ = PropName "dateTime"
+dateTime_ :: IsProp p JSString => p
+dateTime_ = mkProp "dateTime"
 
-default_ :: PropName JSString
-default_ = PropName "default"
+default_ :: IsProp p JSString => p
+default_ = mkProp "default"
 
-defer_ :: PropName JSString
-defer_ = PropName "defer"
+defer_ :: IsProp p JSString => p
+defer_ = mkProp "defer"
 
-dir_ :: PropName JSString
-dir_ = PropName "dir"
+dir_ :: IsProp p JSString => p
+dir_ = mkProp "dir"
 
-disabled_ :: PropName JSString
-disabled_ = PropName "disabled"
+disabled_ :: IsProp p JSString => p
+disabled_ = mkProp "disabled"
 
-download_ :: PropName JSString
-download_ = PropName "download"
+download_ :: IsProp p JSString => p
+download_ = mkProp "download"
 
-draggable_ :: PropName JSString
-draggable_ = PropName "draggable"
+draggable_ :: IsProp p JSString => p
+draggable_ = mkProp "draggable"
 
-encType_ :: PropName JSString
-encType_ = PropName "encType"
+encType_ :: IsProp p JSString => p
+encType_ = mkProp "encType"
 
 form_ :: ElementOrProp p JSString => p
 form_ = fst (symbolName "form" :: ElementOrProp p JSString => (p, Proxy JSString))
 
-formAction_ :: PropName JSString
-formAction_ = PropName "formAction"
+formAction_ :: IsProp p JSString => p
+formAction_ = mkProp "formAction"
 
-formEncType_ :: PropName JSString
-formEncType_ = PropName "formEncType"
+formEncType_ :: IsProp p JSString => p
+formEncType_ = mkProp "formEncType"
 
-formMethod_ :: PropName JSString
-formMethod_ = PropName "formMethod"
+formMethod_ :: IsProp p JSString => p
+formMethod_ = mkProp "formMethod"
 
-formNoValidate_ :: PropName JSString
-formNoValidate_ = PropName "formNoValidate"
+formNoValidate_ :: IsProp p JSString => p
+formNoValidate_ = mkProp "formNoValidate"
 
-formTarget_ :: PropName JSString
-formTarget_ = PropName "formTarget"
+formTarget_ :: IsProp p JSString => p
+formTarget_ = mkProp "formTarget"
 
-frameBorder_ :: PropName JSString
-frameBorder_ = PropName "frameBorder"
+frameBorder_ :: IsProp p JSString => p
+frameBorder_ = mkProp "frameBorder"
 
-headers_ :: PropName JSString
-headers_ = PropName "headers"
+headers_ :: IsProp p JSString => p
+headers_ = mkProp "headers"
 
-height_ :: PropName Int
-height_ = PropName "height"
+height_ :: IsProp p Int => p
+height_ = mkProp "height"
 
-hidden_ :: PropName Bool
-hidden_ = PropName "hidden"
+hidden_ :: IsProp p Bool => p
+hidden_ = mkProp "hidden"
 
-high_ :: PropName JSString
-high_ = PropName "high"
+high_ :: IsProp p JSString => p
+high_ = mkProp "high"
 
-href_ :: PropName JSString
-href_ = PropName "href"
+href_ :: IsProp p JSString => p
+href_ = mkProp "href"
 
-hrefLang_ :: PropName JSString
-hrefLang_ = PropName "hrefLang"
+hrefLang_ :: IsProp p JSString => p
+hrefLang_ = mkProp "hrefLang"
 
-htmlFor_ :: PropName JSString
-htmlFor_ = PropName "htmlFor"
+htmlFor_ :: IsProp p JSString => p
+htmlFor_ = mkProp "htmlFor"
 
-httpEquiv_ :: PropName JSString
-httpEquiv_ = PropName "httpEquiv"
+httpEquiv_ :: IsProp p JSString => p
+httpEquiv_ = mkProp "httpEquiv"
 
-icon_ :: PropName JSString
-icon_ = PropName "icon"
+icon_ :: IsProp p JSString => p
+icon_ = mkProp "icon"
 
-id_ :: PropName JSString
-id_ = PropName "id"
+id_ :: IsProp p JSString => p
+id_ = mkProp "id"
 
-inputMode_ :: PropName JSString
-inputMode_ = PropName "inputMode"
+inputMode_ :: IsProp p JSString => p
+inputMode_ = mkProp "inputMode"
 
-integrity_ :: PropName JSString
-integrity_ = PropName "integrity"
+integrity_ :: IsProp p JSString => p
+integrity_ = mkProp "integrity"
 
-is_ :: PropName JSString
-is_ = PropName "is"
+is_ :: IsProp p JSString => p
+is_ = mkProp "is"
 
-keyParams_ :: PropName JSString
-keyParams_ = PropName "keyParams"
+keyParams_ :: IsProp p JSString => p
+keyParams_ = mkProp "keyParams"
 
-keyType_ :: PropName JSString
-keyType_ = PropName "keyType"
+keyType_ :: IsProp p JSString => p
+keyType_ = mkProp "keyType"
 
-kind_ :: PropName JSString
-kind_ = PropName "kind"
+kind_ :: IsProp p JSString => p
+kind_ = mkProp "kind"
 
 label_ :: ElementOrProp p JSString => p
 label_ = fst (symbolName "label" :: ElementOrProp p JSString => (p, Proxy JSString))
 
-lang_ :: PropName JSString
-lang_ = PropName "lang"
+lang_ :: IsProp p JSString => p
+lang_ = mkProp "lang"
 
-list_ :: PropName JSString
-list_ = PropName "list"
+list_ :: IsProp p JSString => p
+list_ = mkProp "list"
 
-loop_ :: PropName JSString
-loop_ = PropName "loop"
+loop_ :: IsProp p JSString => p
+loop_ = mkProp "loop"
 
-low_ :: PropName JSString
-low_ = PropName "low"
+low_ :: IsProp p JSString => p
+low_ = mkProp "low"
 
-manifest_ :: PropName JSString
-manifest_ = PropName "manifest"
+manifest_ :: IsProp p JSString => p
+manifest_ = mkProp "manifest"
 
-marginHeight_ :: PropName JSString
-marginHeight_ = PropName "marginHeight"
+marginHeight_ :: IsProp p JSString => p
+marginHeight_ = mkProp "marginHeight"
 
-marginWidth_ :: PropName JSString
-marginWidth_ = PropName "marginWidth"
+marginWidth_ :: IsProp p JSString => p
+marginWidth_ = mkProp "marginWidth"
 
-max_ :: PropName JSString
-max_ = PropName "max"
+max_ :: IsProp p JSString => p
+max_ = mkProp "max"
 
-maxLength_ :: PropName JSString
-maxLength_ = PropName "maxLength"
+maxLength_ :: IsProp p JSString => p
+maxLength_ = mkProp "maxLength"
 
-media_ :: PropName JSString
-media_ = PropName "media"
+media_ :: IsProp p JSString => p
+media_ = mkProp "media"
 
-mediaGroup_ :: PropName JSString
-mediaGroup_ = PropName "mediaGroup"
+mediaGroup_ :: IsProp p JSString => p
+mediaGroup_ = mkProp "mediaGroup"
 
-method_ :: PropName JSString
-method_ = PropName "method"
+method_ :: IsProp p JSString => p
+method_ = mkProp "method"
 
-min_ :: PropName JSString
-min_ = PropName "min"
+min_ :: IsProp p JSString => p
+min_ = mkProp "min"
 
-minLength_ :: PropName JSString
-minLength_ = PropName "minLength"
+minLength_ :: IsProp p JSString => p
+minLength_ = mkProp "minLength"
 
-multiple_ :: PropName JSString
-multiple_ = PropName "multiple"
+multiple_ :: IsProp p JSString => p
+multiple_ = mkProp "multiple"
 
-muted_ :: PropName JSString
-muted_ = PropName "muted"
+muted_ :: IsProp p JSString => p
+muted_ = mkProp "muted"
 
-name_ :: PropName JSString
-name_ = PropName "name"
+name_ :: IsProp p JSString => p
+name_ = mkProp "name"
 
-noValidate_ :: PropName Bool
-noValidate_ = PropName "noValidate"
+noValidate_ :: IsProp p Bool => p
+noValidate_ = mkProp "noValidate"
 
-nonce_ :: PropName JSString
-nonce_ = PropName "nonce"
+nonce_ :: IsProp p JSString => p
+nonce_ = mkProp "nonce"
 
-open_ :: PropName JSString
-open_ = PropName "open"
+open_ :: IsProp p JSString => p
+open_ = mkProp "open"
 
-optimum_ :: PropName JSString
-optimum_ = PropName "optimum"
+optimum_ :: IsProp p JSString => p
+optimum_ = mkProp "optimum"
 
 pattern_ :: ElementOrProp p JSString => p
 pattern_ = fst (symbolName "pattern" :: ElementOrProp p JSString => (p, Proxy JSString))
 
-placeholder_ :: PropName JSString
-placeholder_ = PropName "placeholder"
+placeholder_ :: IsProp p JSString => p
+placeholder_ = mkProp "placeholder"
 
-poster_ :: PropName JSString
-poster_ = PropName "poster"
+poster_ :: IsProp p JSString => p
+poster_ = mkProp "poster"
 
-preload_ :: PropName JSString
-preload_ = PropName "preload"
+preload_ :: IsProp p JSString => p
+preload_ = mkProp "preload"
 
-profile_ :: PropName JSString
-profile_ = PropName "profile"
+profile_ :: IsProp p JSString => p
+profile_ = mkProp "profile"
 
-radioGroup_ :: PropName JSString
-radioGroup_ = PropName "radioGroup"
+radioGroup_ :: IsProp p JSString => p
+radioGroup_ = mkProp "radioGroup"
 
-readOnly_ :: PropName JSString
-readOnly_ = PropName "readOnly"
+readOnly_ :: IsProp p JSString => p
+readOnly_ = mkProp "readOnly"
 
-rel_ :: PropName JSString
-rel_ = PropName "rel"
+rel_ :: IsProp p JSString => p
+rel_ = mkProp "rel"
 
-required_ :: PropName Bool
-required_ = PropName "required"
+required_ :: IsProp p Bool => p
+required_ = mkProp "required"
 
-reversed_ :: PropName JSString
-reversed_ = PropName "reversed"
+reversed_ :: IsProp p JSString => p
+reversed_ = mkProp "reversed"
 
-role_ :: PropName JSString
-role_ = PropName "role"
+role_ :: IsProp p JSString => p
+role_ = mkProp "role"
 
-rowSpan_ :: PropName JSString
-rowSpan_ = PropName "rowSpan"
+rowSpan_ :: IsProp p JSString => p
+rowSpan_ = mkProp "rowSpan"
 
-rows_ :: PropName Int
-rows_ = PropName "rows"
+rows_ :: IsProp p Int => p
+rows_ = mkProp "rows"
 
-sandbox_ :: PropName JSString
-sandbox_ = PropName "sandbox"
+sandbox_ :: IsProp p JSString => p
+sandbox_ = mkProp "sandbox"
 
-scope_ :: PropName JSString
-scope_ = PropName "scope"
+scope_ :: IsProp p JSString => p
+scope_ = mkProp "scope"
 
-scoped_ :: PropName JSString
-scoped_ = PropName "scoped"
+scoped_ :: IsProp p JSString => p
+scoped_ = mkProp "scoped"
 
-scrolling_ :: PropName JSString
-scrolling_ = PropName "scrolling"
+scrolling_ :: IsProp p JSString => p
+scrolling_ = mkProp "scrolling"
 
-seamless_ :: PropName JSString
-seamless_ = PropName "seamless"
+seamless_ :: IsProp p JSString => p
+seamless_ = mkProp "seamless"
 
-selected_ :: PropName JSString
-selected_ = PropName "selected"
+selected_ :: IsProp p JSString => p
+selected_ = mkProp "selected"
 
-shape_ :: PropName JSString
-shape_ = PropName "shape"
+shape_ :: IsProp p JSString => p
+shape_ = mkProp "shape"
 
-size_ :: PropName JSString
-size_ = PropName "size"
+size_ :: IsProp p JSString => p
+size_ = mkProp "size"
 
-sizes_ :: PropName JSString
-sizes_ = PropName "sizes"
+sizes_ :: IsProp p JSString => p
+sizes_ = mkProp "sizes"
 
 span_ :: ElementOrProp p JSString => p
 span_ = fst (symbolName "span" :: ElementOrProp p JSString => (p, Proxy JSString))
 
-spellCheck_ :: PropName JSString
-spellCheck_ = PropName "spellCheck"
+spellCheck_ :: IsProp p JSString => p
+spellCheck_ = mkProp "spellCheck"
 
-src_ :: PropName JSString
-src_ = PropName "src"
+src_ :: IsProp p JSString => p
+src_ = mkProp "src"
 
-srcDoc_ :: PropName JSString
-srcDoc_ = PropName "srcDoc"
+srcDoc_ :: IsProp p JSString => p
+srcDoc_ = mkProp "srcDoc"
 
-srcLang_ :: PropName JSString
-srcLang_ = PropName "srcLang"
+srcLang_ :: IsProp p JSString => p
+srcLang_ = mkProp "srcLang"
 
-srcSet_ :: PropName JSString
-srcSet_ = PropName "srcSet"
+srcSet_ :: IsProp p JSString => p
+srcSet_ = mkProp "srcSet"
 
-start_ :: PropName JSString
-start_ = PropName "start"
+start_ :: IsProp p JSString => p
+start_ = mkProp "start"
 
-step_ :: PropName JSString
-step_ = PropName "step"
+step_ :: IsProp p JSString => p
+step_ = mkProp "step"
 
 style_ :: ElementOrProp p Object => p
 style_ = fst (symbolName "style" :: ElementOrProp p Object => (p, Proxy Object))
 
-summary_ :: PropName JSString
-summary_ = PropName "summary"
+summary_ :: IsProp p JSString => p
+summary_ = mkProp "summary"
 
-tabIndex_ :: PropName Int
-tabIndex_ = PropName "tabIndex"
+tabIndex_ :: IsProp p Int => p
+tabIndex_ = mkProp "tabIndex"
 
-target_ :: PropName JSString
-target_ = PropName "target"
+target_ :: IsProp p JSString => p
+target_ = mkProp "target"
 
 title_ :: ElementOrProp p JSString => p
 title_ = fst (symbolName "title" :: ElementOrProp p JSString => (p, Proxy JSString))
 
-type_ :: PropName JSString
-type_ = PropName "type"
+type_ :: IsProp p JSString => p
+type_ = mkProp "type"
 
-useMap_ :: PropName JSString
-useMap_ = PropName "useMap"
+useMap_ :: IsProp p JSString => p
+useMap_ = mkProp "useMap"
 
-value_ :: PropName JSString
-value_ = PropName "value"
+value_ :: IsProp p JSString => p
+value_ = mkProp "value"
 
-width_ :: PropName Int
-width_ = PropName "width"
+width_ :: IsProp p Int => p
+width_ = mkProp "width"
 
-wmode_ :: PropName JSString
-wmode_ = PropName "wmode"
-wrap_ :: PropName JSString
-wrap_ = PropName "wrap"
-about_ :: PropName JSString
-about_ = PropName "about"
-datatype_ :: PropName JSString
-datatype_ = PropName "datatype"
-inlist_ :: PropName JSString
-inlist_ = PropName "inlist"
-prefix_ :: PropName JSString
-prefix_ = PropName "prefix"
-property_ :: PropName JSString
-property_ = PropName "property"
-resource_ :: PropName JSString
-resource_ = PropName "resource"
-typeof_ :: PropName JSString
-typeof_ = PropName "typeof"
-vocab_ :: PropName JSString
-vocab_ = PropName "vocab"
-autoCapitalize_ :: PropName JSString
-autoCapitalize_ = PropName "autoCapitalize"
-autoCorrect_ :: PropName JSString
-autoCorrect_ = PropName "autoCorrect"
-color_ :: PropName JSString
-color_ = PropName "color"
-itemProp_ :: PropName JSString
-itemProp_ = PropName "itemProp"
-itemScope_ :: PropName JSString
-itemScope_ = PropName "itemScope"
-itemType_ :: PropName JSString
-itemType_ = PropName "itemType"
-itemRef_ :: PropName JSString
-itemRef_ = PropName "itemRef"
-itemID_ :: PropName JSString
-itemID_ = PropName "itemID"
-security_ :: PropName JSString
-security_ = PropName "security"
-unselectable_ :: PropName JSString
-unselectable_ = PropName "unselectable"
-results_ :: PropName JSString
-results_ = PropName "results"
-autoSave_ :: PropName JSString
-autoSave_ = PropName "autoSave"
-accentHeight_ :: PropName JSString
-accentHeight_ = PropName "accentHeight"
-accumulate_ :: PropName JSString
-accumulate_ = PropName "accumulate"
-additive_ :: PropName JSString
-additive_ = PropName "additive"
-alignmentBaseline_ :: PropName JSString
-alignmentBaseline_ = PropName "alignmentBaseline"
-allowReorder_ :: PropName JSString
-allowReorder_ = PropName "allowReorder"
-alphabetic_ :: PropName JSString
-alphabetic_ = PropName "alphabetic"
-amplitude_ :: PropName JSString
-amplitude_ = PropName "amplitude"
-arabicForm_ :: PropName JSString
-arabicForm_ = PropName "arabicForm"
-ascent_ :: PropName JSString
-ascent_ = PropName "ascent"
-attributeName_ :: PropName JSString
-attributeName_ = PropName "attributeName"
-attributeType_ :: PropName JSString
-attributeType_ = PropName "attributeType"
-autoReverse_ :: PropName JSString
-autoReverse_ = PropName "autoReverse"
-azimuth_ :: PropName JSString
-azimuth_ = PropName "azimuth"
-baseFrequency_ :: PropName JSString
-baseFrequency_ = PropName "baseFrequency"
-baseProfile_ :: PropName JSString
-baseProfile_ = PropName "baseProfile"
-baselineShift_ :: PropName JSString
-baselineShift_ = PropName "baselineShift"
-bbox_ :: PropName JSString
-bbox_ = PropName "bbox"
-begin_ :: PropName JSString
-begin_ = PropName "begin"
-bias_ :: PropName JSString
-bias_ = PropName "bias"
-by_ :: PropName JSString
-by_ = PropName "by"
-calcMode_ :: PropName JSString
-calcMode_ = PropName "calcMode"
-capHeight_ :: PropName JSString
-capHeight_ = PropName "capHeight"
-clip_ :: PropName JSString
-clip_ = PropName "clip"
-clipPathUnits_ :: PropName JSString
-clipPathUnits_ = PropName "clipPathUnits"
-clipRule_ :: PropName JSString
-clipRule_ = PropName "clipRule"
-colorInterpolation_ :: PropName JSString
-colorInterpolation_ = PropName "colorInterpolation"
-colorInterpolationFilters_ :: PropName JSString
-colorInterpolationFilters_ = PropName "colorInterpolationFilters"
-colorProfile_ :: PropName JSString
-colorProfile_ = PropName "colorProfile"
-colorRendering_ :: PropName JSString
-colorRendering_ = PropName "colorRendering"
-contentScriptType_ :: PropName JSString
-contentScriptType_ = PropName "contentScriptType"
-contentStyleType_ :: PropName JSString
-contentStyleType_ = PropName "contentStyleType"
-cursor_ :: PropName JSString
-cursor_ = PropName "cursor"
-cx_ :: PropName JSString
-cx_ = PropName "cx"
-cy_ :: PropName JSString
-cy_ = PropName "cy"
-d_ :: PropName JSString
-d_ = PropName "d"
-decelerate_ :: PropName JSString
-decelerate_ = PropName "decelerate"
-descent_ :: PropName JSString
-descent_ = PropName "descent"
-diffuseConstant_ :: PropName JSString
-diffuseConstant_ = PropName "diffuseConstant"
-direction_ :: PropName JSString
-direction_ = PropName "direction"
-display_ :: PropName JSString
-display_ = PropName "display"
-divisor_ :: PropName JSString
-divisor_ = PropName "divisor"
-dominantBaseline_ :: PropName JSString
-dominantBaseline_ = PropName "dominantBaseline"
-dur_ :: PropName JSString
-dur_ = PropName "dur"
-dx_ :: PropName JSString
-dx_ = PropName "dx"
-dy_ :: PropName JSString
-dy_ = PropName "dy"
-edgeMode_ :: PropName JSString
-edgeMode_ = PropName "edgeMode"
-elevation_ :: PropName JSString
-elevation_ = PropName "elevation"
-enableBackground_ :: PropName JSString
-enableBackground_ = PropName "enableBackground"
-end_ :: PropName JSString
-end_ = PropName "end"
-exponent_ :: PropName JSString
-exponent_ = PropName "exponent"
-externalResourcesRequired_ :: PropName JSString
-externalResourcesRequired_ = PropName "externalResourcesRequired"
-fill_ :: PropName JSString
-fill_ = PropName "fill"
-fillOpacity_ :: PropName JSString
-fillOpacity_ = PropName "fillOpacity"
-fillRule_ :: PropName JSString
-fillRule_ = PropName "fillRule"
-filter_ :: PropName JSString
-filter_ = PropName "filter"
-filterRes_ :: PropName JSString
-filterRes_ = PropName "filterRes"
-filterUnits_ :: PropName JSString
-filterUnits_ = PropName "filterUnits"
-floodColor_ :: PropName JSString
-floodColor_ = PropName "floodColor"
-floodOpacity_ :: PropName JSString
-floodOpacity_ = PropName "floodOpacity"
-focusable_ :: PropName JSString
-focusable_ = PropName "focusable"
-fontFamily_ :: PropName JSString
-fontFamily_ = PropName "fontFamily"
-fontSize_ :: PropName JSString
-fontSize_ = PropName "fontSize"
-fontSizeAdjust_ :: PropName JSString
-fontSizeAdjust_ = PropName "fontSizeAdjust"
-fontStretch_ :: PropName JSString
-fontStretch_ = PropName "fontStretch"
-fontStyle_ :: PropName JSString
-fontStyle_ = PropName "fontStyle"
-fontVariant_ :: PropName JSString
-fontVariant_ = PropName "fontVariant"
-fontWeight_ :: PropName JSString
-fontWeight_ = PropName "fontWeight"
-format_ :: PropName JSString
-format_ = PropName "format"
-from_ :: PropName JSString
-from_ = PropName "from"
-fx_ :: PropName JSString
-fx_ = PropName "fx"
-fy_ :: PropName JSString
-fy_ = PropName "fy"
-g1_ :: PropName JSString
-g1_ = PropName "g1"
-g2_ :: PropName JSString
-g2_ = PropName "g2"
-glyphName_ :: PropName JSString
-glyphName_ = PropName "glyphName"
-glyphOrientationHorizontal_ :: PropName JSString
-glyphOrientationHorizontal_ = PropName "glyphOrientationHorizontal"
-glyphOrientationVertical_ :: PropName JSString
-glyphOrientationVertical_ = PropName "glyphOrientationVertical"
-glyphRef_ :: PropName JSString
-glyphRef_ = PropName "glyphRef"
-gradientTransform_ :: PropName JSString
-gradientTransform_ = PropName "gradientTransform"
-gradientUnits_ :: PropName JSString
-gradientUnits_ = PropName "gradientUnits"
-hanging_ :: PropName JSString
-hanging_ = PropName "hanging"
-horizAdvX_ :: PropName JSString
-horizAdvX_ = PropName "horizAdvX"
-horizOriginX_ :: PropName JSString
-horizOriginX_ = PropName "horizOriginX"
-ideographic_ :: PropName JSString
-ideographic_ = PropName "ideographic"
-imageRendering_ :: PropName JSString
-imageRendering_ = PropName "imageRendering"
-in_ :: PropName JSString
-in_ = PropName "in"
-in2_ :: PropName JSString
-in2_ = PropName "in2"
-intercept_ :: PropName JSString
-intercept_ = PropName "intercept"
-k_ :: PropName JSString
-k_ = PropName "k"
-k1_ :: PropName JSString
-k1_ = PropName "k1"
-k2_ :: PropName JSString
-k2_ = PropName "k2"
-k3_ :: PropName JSString
-k3_ = PropName "k3"
-k4_ :: PropName JSString
-k4_ = PropName "k4"
-kernelMatrix_ :: PropName JSString
-kernelMatrix_ = PropName "kernelMatrix"
-kernelUnitLength_ :: PropName JSString
-kernelUnitLength_ = PropName "kernelUnitLength"
-kerning_ :: PropName JSString
-kerning_ = PropName "kerning"
-keyPoints_ :: PropName JSString
-keyPoints_ = PropName "keyPoints"
-keySplines_ :: PropName JSString
-keySplines_ = PropName "keySplines"
-keyTimes_ :: PropName JSString
-keyTimes_ = PropName "keyTimes"
-lengthAdjust_ :: PropName JSString
-lengthAdjust_ = PropName "lengthAdjust"
-letterSpacing_ :: PropName JSString
-letterSpacing_ = PropName "letterSpacing"
-lightingColor_ :: PropName JSString
-lightingColor_ = PropName "lightingColor"
-limitingConeAngle_ :: PropName JSString
-limitingConeAngle_ = PropName "limitingConeAngle"
-local_ :: PropName JSString
-local_ = PropName "local"
-markerEnd_ :: PropName JSString
-markerEnd_ = PropName "markerEnd"
-markerHeight_ :: PropName JSString
-markerHeight_ = PropName "markerHeight"
-markerMid_ :: PropName JSString
-markerMid_ = PropName "markerMid"
-markerStart_ :: PropName JSString
-markerStart_ = PropName "markerStart"
-markerUnits_ :: PropName JSString
-markerUnits_ = PropName "markerUnits"
-markerWidth_ :: PropName JSString
-markerWidth_ = PropName "markerWidth"
+wmode_ :: IsProp p JSString => p
+wmode_ = mkProp "wmode"
+wrap_ :: IsProp p JSString => p
+wrap_ = mkProp "wrap"
+about_ :: IsProp p JSString => p
+about_ = mkProp "about"
+datatype_ :: IsProp p JSString => p
+datatype_ = mkProp "datatype"
+inlist_ :: IsProp p JSString => p
+inlist_ = mkProp "inlist"
+prefix_ :: IsProp p JSString => p
+prefix_ = mkProp "prefix"
+property_ :: IsProp p JSString => p
+property_ = mkProp "property"
+resource_ :: IsProp p JSString => p
+resource_ = mkProp "resource"
+typeof_ :: IsProp p JSString => p
+typeof_ = mkProp "typeof"
+vocab_ :: IsProp p JSString => p
+vocab_ = mkProp "vocab"
+autoCapitalize_ :: IsProp p JSString => p
+autoCapitalize_ = mkProp "autoCapitalize"
+autoCorrect_ :: IsProp p JSString => p
+autoCorrect_ = mkProp "autoCorrect"
+color_ :: IsProp p JSString => p
+color_ = mkProp "color"
+itemProp_ :: IsProp p JSString => p
+itemProp_ = mkProp "itemProp"
+itemScope_ :: IsProp p JSString => p
+itemScope_ = mkProp "itemScope"
+itemType_ :: IsProp p JSString => p
+itemType_ = mkProp "itemType"
+itemRef_ :: IsProp p JSString => p
+itemRef_ = mkProp "itemRef"
+itemID_ :: IsProp p JSString => p
+itemID_ = mkProp "itemID"
+security_ :: IsProp p JSString => p
+security_ = mkProp "security"
+unselectable_ :: IsProp p JSString => p
+unselectable_ = mkProp "unselectable"
+results_ :: IsProp p JSString => p
+results_ = mkProp "results"
+autoSave_ :: IsProp p JSString => p
+autoSave_ = mkProp "autoSave"
+accentHeight_ :: IsProp p JSString => p
+accentHeight_ = mkProp "accentHeight"
+accumulate_ :: IsProp p JSString => p
+accumulate_ = mkProp "accumulate"
+additive_ :: IsProp p JSString => p
+additive_ = mkProp "additive"
+alignmentBaseline_ :: IsProp p JSString => p
+alignmentBaseline_ = mkProp "alignmentBaseline"
+allowReorder_ :: IsProp p JSString => p
+allowReorder_ = mkProp "allowReorder"
+alphabetic_ :: IsProp p JSString => p
+alphabetic_ = mkProp "alphabetic"
+amplitude_ :: IsProp p JSString => p
+amplitude_ = mkProp "amplitude"
+arabicForm_ :: IsProp p JSString => p
+arabicForm_ = mkProp "arabicForm"
+ascent_ :: IsProp p JSString => p
+ascent_ = mkProp "ascent"
+attributeName_ :: IsProp p JSString => p
+attributeName_ = mkProp "attributeName"
+attributeType_ :: IsProp p JSString => p
+attributeType_ = mkProp "attributeType"
+autoReverse_ :: IsProp p JSString => p
+autoReverse_ = mkProp "autoReverse"
+azimuth_ :: IsProp p JSString => p
+azimuth_ = mkProp "azimuth"
+baseFrequency_ :: IsProp p JSString => p
+baseFrequency_ = mkProp "baseFrequency"
+baseProfile_ :: IsProp p JSString => p
+baseProfile_ = mkProp "baseProfile"
+baselineShift_ :: IsProp p JSString => p
+baselineShift_ = mkProp "baselineShift"
+bbox_ :: IsProp p JSString => p
+bbox_ = mkProp "bbox"
+begin_ :: IsProp p JSString => p
+begin_ = mkProp "begin"
+bias_ :: IsProp p JSString => p
+bias_ = mkProp "bias"
+by_ :: IsProp p JSString => p
+by_ = mkProp "by"
+calcMode_ :: IsProp p JSString => p
+calcMode_ = mkProp "calcMode"
+capHeight_ :: IsProp p JSString => p
+capHeight_ = mkProp "capHeight"
+clip_ :: IsProp p JSString => p
+clip_ = mkProp "clip"
+clipPathUnits_ :: IsProp p JSString => p
+clipPathUnits_ = mkProp "clipPathUnits"
+clipRule_ :: IsProp p JSString => p
+clipRule_ = mkProp "clipRule"
+colorInterpolation_ :: IsProp p JSString => p
+colorInterpolation_ = mkProp "colorInterpolation"
+colorInterpolationFilters_ :: IsProp p JSString => p
+colorInterpolationFilters_ = mkProp "colorInterpolationFilters"
+colorProfile_ :: IsProp p JSString => p
+colorProfile_ = mkProp "colorProfile"
+colorRendering_ :: IsProp p JSString => p
+colorRendering_ = mkProp "colorRendering"
+contentScriptType_ :: IsProp p JSString => p
+contentScriptType_ = mkProp "contentScriptType"
+contentStyleType_ :: IsProp p JSString => p
+contentStyleType_ = mkProp "contentStyleType"
+cursor_ :: IsProp p JSString => p
+cursor_ = mkProp "cursor"
+cx_ :: IsProp p JSString => p
+cx_ = mkProp "cx"
+cy_ :: IsProp p JSString => p
+cy_ = mkProp "cy"
+d_ :: IsProp p JSString => p
+d_ = mkProp "d"
+decelerate_ :: IsProp p JSString => p
+decelerate_ = mkProp "decelerate"
+descent_ :: IsProp p JSString => p
+descent_ = mkProp "descent"
+diffuseConstant_ :: IsProp p JSString => p
+diffuseConstant_ = mkProp "diffuseConstant"
+direction_ :: IsProp p JSString => p
+direction_ = mkProp "direction"
+display_ :: IsProp p JSString => p
+display_ = mkProp "display"
+divisor_ :: IsProp p JSString => p
+divisor_ = mkProp "divisor"
+dominantBaseline_ :: IsProp p JSString => p
+dominantBaseline_ = mkProp "dominantBaseline"
+dur_ :: IsProp p JSString => p
+dur_ = mkProp "dur"
+dx_ :: IsProp p JSString => p
+dx_ = mkProp "dx"
+dy_ :: IsProp p JSString => p
+dy_ = mkProp "dy"
+edgeMode_ :: IsProp p JSString => p
+edgeMode_ = mkProp "edgeMode"
+elevation_ :: IsProp p JSString => p
+elevation_ = mkProp "elevation"
+enableBackground_ :: IsProp p JSString => p
+enableBackground_ = mkProp "enableBackground"
+end_ :: IsProp p JSString => p
+end_ = mkProp "end"
+exponent_ :: IsProp p JSString => p
+exponent_ = mkProp "exponent"
+externalResourcesRequired_ :: IsProp p JSString => p
+externalResourcesRequired_ = mkProp "externalResourcesRequired"
+fill_ :: IsProp p JSString => p
+fill_ = mkProp "fill"
+fillOpacity_ :: IsProp p JSString => p
+fillOpacity_ = mkProp "fillOpacity"
+fillRule_ :: IsProp p JSString => p
+fillRule_ = mkProp "fillRule"
+filter_ :: IsProp p JSString => p
+filter_ = mkProp "filter"
+filterRes_ :: IsProp p JSString => p
+filterRes_ = mkProp "filterRes"
+filterUnits_ :: IsProp p JSString => p
+filterUnits_ = mkProp "filterUnits"
+floodColor_ :: IsProp p JSString => p
+floodColor_ = mkProp "floodColor"
+floodOpacity_ :: IsProp p JSString => p
+floodOpacity_ = mkProp "floodOpacity"
+focusable_ :: IsProp p JSString => p
+focusable_ = mkProp "focusable"
+fontFamily_ :: IsProp p JSString => p
+fontFamily_ = mkProp "fontFamily"
+fontSize_ :: IsProp p JSString => p
+fontSize_ = mkProp "fontSize"
+fontSizeAdjust_ :: IsProp p JSString => p
+fontSizeAdjust_ = mkProp "fontSizeAdjust"
+fontStretch_ :: IsProp p JSString => p
+fontStretch_ = mkProp "fontStretch"
+fontStyle_ :: IsProp p JSString => p
+fontStyle_ = mkProp "fontStyle"
+fontVariant_ :: IsProp p JSString => p
+fontVariant_ = mkProp "fontVariant"
+fontWeight_ :: IsProp p JSString => p
+fontWeight_ = mkProp "fontWeight"
+format_ :: IsProp p JSString => p
+format_ = mkProp "format"
+from_ :: IsProp p JSString => p
+from_ = mkProp "from"
+fx_ :: IsProp p JSString => p
+fx_ = mkProp "fx"
+fy_ :: IsProp p JSString => p
+fy_ = mkProp "fy"
+g1_ :: IsProp p JSString => p
+g1_ = mkProp "g1"
+g2_ :: IsProp p JSString => p
+g2_ = mkProp "g2"
+glyphName_ :: IsProp p JSString => p
+glyphName_ = mkProp "glyphName"
+glyphOrientationHorizontal_ :: IsProp p JSString => p
+glyphOrientationHorizontal_ = mkProp "glyphOrientationHorizontal"
+glyphOrientationVertical_ :: IsProp p JSString => p
+glyphOrientationVertical_ = mkProp "glyphOrientationVertical"
+glyphRef_ :: IsProp p JSString => p
+glyphRef_ = mkProp "glyphRef"
+gradientTransform_ :: IsProp p JSString => p
+gradientTransform_ = mkProp "gradientTransform"
+gradientUnits_ :: IsProp p JSString => p
+gradientUnits_ = mkProp "gradientUnits"
+hanging_ :: IsProp p JSString => p
+hanging_ = mkProp "hanging"
+horizAdvX_ :: IsProp p JSString => p
+horizAdvX_ = mkProp "horizAdvX"
+horizOriginX_ :: IsProp p JSString => p
+horizOriginX_ = mkProp "horizOriginX"
+ideographic_ :: IsProp p JSString => p
+ideographic_ = mkProp "ideographic"
+imageRendering_ :: IsProp p JSString => p
+imageRendering_ = mkProp "imageRendering"
+in_ :: IsProp p JSString => p
+in_ = mkProp "in"
+in2_ :: IsProp p JSString => p
+in2_ = mkProp "in2"
+intercept_ :: IsProp p JSString => p
+intercept_ = mkProp "intercept"
+k_ :: IsProp p JSString => p
+k_ = mkProp "k"
+k1_ :: IsProp p JSString => p
+k1_ = mkProp "k1"
+k2_ :: IsProp p JSString => p
+k2_ = mkProp "k2"
+k3_ :: IsProp p JSString => p
+k3_ = mkProp "k3"
+k4_ :: IsProp p JSString => p
+k4_ = mkProp "k4"
+kernelMatrix_ :: IsProp p JSString => p
+kernelMatrix_ = mkProp "kernelMatrix"
+kernelUnitLength_ :: IsProp p JSString => p
+kernelUnitLength_ = mkProp "kernelUnitLength"
+kerning_ :: IsProp p JSString => p
+kerning_ = mkProp "kerning"
+keyPoints_ :: IsProp p JSString => p
+keyPoints_ = mkProp "keyPoints"
+keySplines_ :: IsProp p JSString => p
+keySplines_ = mkProp "keySplines"
+keyTimes_ :: IsProp p JSString => p
+keyTimes_ = mkProp "keyTimes"
+lengthAdjust_ :: IsProp p JSString => p
+lengthAdjust_ = mkProp "lengthAdjust"
+letterSpacing_ :: IsProp p JSString => p
+letterSpacing_ = mkProp "letterSpacing"
+lightingColor_ :: IsProp p JSString => p
+lightingColor_ = mkProp "lightingColor"
+limitingConeAngle_ :: IsProp p JSString => p
+limitingConeAngle_ = mkProp "limitingConeAngle"
+local_ :: IsProp p JSString => p
+local_ = mkProp "local"
+markerEnd_ :: IsProp p JSString => p
+markerEnd_ = mkProp "markerEnd"
+markerHeight_ :: IsProp p JSString => p
+markerHeight_ = mkProp "markerHeight"
+markerMid_ :: IsProp p JSString => p
+markerMid_ = mkProp "markerMid"
+markerStart_ :: IsProp p JSString => p
+markerStart_ = mkProp "markerStart"
+markerUnits_ :: IsProp p JSString => p
+markerUnits_ = mkProp "markerUnits"
+markerWidth_ :: IsProp p JSString => p
+markerWidth_ = mkProp "markerWidth"
 mask_ :: ElementOrProp p JSString => p
 mask_ = fst (symbolName "mask" :: ElementOrProp p JSString => (p, Proxy JSString))
-maskContentUnits_ :: PropName JSString
-maskContentUnits_ = PropName "maskContentUnits"
-maskUnits_ :: PropName JSString
-maskUnits_ = PropName "maskUnits"
-mathematical_ :: PropName JSString
-mathematical_ = PropName "mathematical"
-mode_ :: PropName JSString
-mode_ = PropName "mode"
-numOctaves_ :: PropName JSString
-numOctaves_ = PropName "numOctaves"
-offset_ :: PropName JSString
-offset_ = PropName "offset"
-opacity_ :: PropName JSString
-opacity_ = PropName "opacity"
-operator_ :: PropName JSString
-operator_ = PropName "operator"
-order_ :: PropName JSString
-order_ = PropName "order"
-orient_ :: PropName JSString
-orient_ = PropName "orient"
-orientation_ :: PropName JSString
-orientation_ = PropName "orientation"
-origin_ :: PropName JSString
-origin_ = PropName "origin"
-overflow_ :: PropName JSString
-overflow_ = PropName "overflow"
-overlinePosition_ :: PropName JSString
-overlinePosition_ = PropName "overlinePosition"
-overlineThickness_ :: PropName JSString
-overlineThickness_ = PropName "overlineThickness"
-paintOrder_ :: PropName JSString
-paintOrder_ = PropName "paintOrder"
-panose1_ :: PropName JSString
-panose1_ = PropName "panose1"
-pathLength_ :: PropName JSString
-pathLength_ = PropName "pathLength"
-patternContentUnits_ :: PropName JSString
-patternContentUnits_ = PropName "patternContentUnits"
-patternTransform_ :: PropName JSString
-patternTransform_ = PropName "patternTransform"
-patternUnits_ :: PropName JSString
-patternUnits_ = PropName "patternUnits"
-pointerEvents_ :: PropName JSString
-pointerEvents_ = PropName "pointerEvents"
-points_ :: PropName JSString
-points_ = PropName "points"
-pointsAtX_ :: PropName JSString
-pointsAtX_ = PropName "pointsAtX"
-pointsAtY_ :: PropName JSString
-pointsAtY_ = PropName "pointsAtY"
-pointsAtZ_ :: PropName JSString
-pointsAtZ_ = PropName "pointsAtZ"
-preserveAlpha_ :: PropName JSString
-preserveAlpha_ = PropName "preserveAlpha"
-preserveAspectRatio_ :: PropName JSString
-preserveAspectRatio_ = PropName "preserveAspectRatio"
-primitiveUnits_ :: PropName JSString
-primitiveUnits_ = PropName "primitiveUnits"
-r_ :: PropName JSString
-r_ = PropName "r"
-radius_ :: PropName JSString
-radius_ = PropName "radius"
-refX_ :: PropName JSString
-refX_ = PropName "refX"
-refY_ :: PropName JSString
-refY_ = PropName "refY"
-renderingIntent_ :: PropName JSString
-renderingIntent_ = PropName "renderingIntent"
-repeatCount_ :: PropName JSString
-repeatCount_ = PropName "repeatCount"
-repeatDur_ :: PropName JSString
-repeatDur_ = PropName "repeatDur"
-requiredExtensions_ :: PropName JSString
-requiredExtensions_ = PropName "requiredExtensions"
-requiredFeatures_ :: PropName JSString
-requiredFeatures_ = PropName "requiredFeatures"
-restart_ :: PropName JSString
-restart_ = PropName "restart"
-result_ :: PropName JSString
-result_ = PropName "result"
-rotate_ :: PropName JSString
-rotate_ = PropName "rotate"
-rx_ :: PropName JSString
-rx_ = PropName "rx"
-ry_ :: PropName JSString
-ry_ = PropName "ry"
-scale_ :: PropName JSString
-scale_ = PropName "scale"
-seed_ :: PropName JSString
-seed_ = PropName "seed"
-shapeRendering_ :: PropName JSString
-shapeRendering_ = PropName "shapeRendering"
-slope_ :: PropName JSString
-slope_ = PropName "slope"
-spacing_ :: PropName JSString
-spacing_ = PropName "spacing"
-specularConstant_ :: PropName JSString
-specularConstant_ = PropName "specularConstant"
-specularExponent_ :: PropName JSString
-specularExponent_ = PropName "specularExponent"
-speed_ :: PropName JSString
-speed_ = PropName "speed"
-spreadMethod_ :: PropName JSString
-spreadMethod_ = PropName "spreadMethod"
-startOffset_ :: PropName JSString
-startOffset_ = PropName "startOffset"
-stdDeviation_ :: PropName JSString
-stdDeviation_ = PropName "stdDeviation"
-stemh_ :: PropName JSString
-stemh_ = PropName "stemh"
-stemv_ :: PropName JSString
-stemv_ = PropName "stemv"
-stitchTiles_ :: PropName JSString
-stitchTiles_ = PropName "stitchTiles"
-stopColor_ :: PropName JSString
-stopColor_ = PropName "stopColor"
-stopOpacity_ :: PropName JSString
-stopOpacity_ = PropName "stopOpacity"
-strikethroughPosition_ :: PropName JSString
-strikethroughPosition_ = PropName "strikethroughPosition"
-strikethroughThickness_ :: PropName JSString
-strikethroughThickness_ = PropName "strikethroughThickness"
-string_ :: PropName JSString
-string_ = PropName "string"
-stroke_ :: PropName JSString
-stroke_ = PropName "stroke"
-strokeDasharray_ :: PropName JSString
-strokeDasharray_ = PropName "strokeDasharray"
-strokeDashoffset_ :: PropName JSString
-strokeDashoffset_ = PropName "strokeDashoffset"
-strokeLinecap_ :: PropName JSString
-strokeLinecap_ = PropName "strokeLinecap"
-strokeLinejoin_ :: PropName JSString
-strokeLinejoin_ = PropName "strokeLinejoin"
-strokeMiterlimit_ :: PropName JSString
-strokeMiterlimit_ = PropName "strokeMiterlimit"
-strokeOpacity_ :: PropName JSString
-strokeOpacity_ = PropName "strokeOpacity"
-strokeWidth_ :: PropName JSString
-strokeWidth_ = PropName "strokeWidth"
-surfaceScale_ :: PropName JSString
-surfaceScale_ = PropName "surfaceScale"
-systemLanguage_ :: PropName JSString
-systemLanguage_ = PropName "systemLanguage"
-tableValues_ :: PropName JSString
-tableValues_ = PropName "tableValues"
-targetX_ :: PropName JSString
-targetX_ = PropName "targetX"
-targetY_ :: PropName JSString
-targetY_ = PropName "targetY"
-textAnchor_ :: PropName JSString
-textAnchor_ = PropName "textAnchor"
-textDecoration_ :: PropName JSString
-textDecoration_ = PropName "textDecoration"
-textLength_ :: PropName JSString
-textLength_ = PropName "textLength"
-textRendering_ :: PropName JSString
-textRendering_ = PropName "textRendering"
-to_ :: PropName JSString
-to_ = PropName "to"
-transform_ :: PropName JSString
-transform_ = PropName "transform"
-u1_ :: PropName JSString
-u1_ = PropName "u1"
-u2_ :: PropName JSString
-u2_ = PropName "u2"
-underlinePosition_ :: PropName JSString
-underlinePosition_ = PropName "underlinePosition"
-underlineThickness_ :: PropName JSString
-underlineThickness_ = PropName "underlineThickness"
-unicode_ :: PropName JSString
-unicode_ = PropName "unicode"
-unicodeBidi_ :: PropName JSString
-unicodeBidi_ = PropName "unicodeBidi"
-unicodeRange_ :: PropName JSString
-unicodeRange_ = PropName "unicodeRange"
-unitsPerEm_ :: PropName JSString
-unitsPerEm_ = PropName "unitsPerEm"
-vAlphabetic_ :: PropName JSString
-vAlphabetic_ = PropName "vAlphabetic"
-vHanging_ :: PropName JSString
-vHanging_ = PropName "vHanging"
-vIdeographic_ :: PropName JSString
-vIdeographic_ = PropName "vIdeographic"
-vMathematical_ :: PropName JSString
-vMathematical_ = PropName "vMathematical"
-values_ :: PropName JSString
-values_ = PropName "values"
-vectorEffect_ :: PropName JSString
-vectorEffect_ = PropName "vectorEffect"
-version_ :: PropName JSString
-version_ = PropName "version"
-vertAdvY_ :: PropName JSString
-vertAdvY_ = PropName "vertAdvY"
-vertOriginX_ :: PropName JSString
-vertOriginX_ = PropName "vertOriginX"
-vertOriginY_ :: PropName JSString
-vertOriginY_ = PropName "vertOriginY"
-viewBox_ :: PropName JSString
-viewBox_ = PropName "viewBox"
-viewTarget_ :: PropName JSString
-viewTarget_ = PropName "viewTarget"
-visibility_ :: PropName JSString
-visibility_ = PropName "visibility"
-widths_ :: PropName JSString
-widths_ = PropName "widths"
-wordSpacing_ :: PropName JSString
-wordSpacing_ = PropName "wordSpacing"
-writingMode_ :: PropName JSString
-writingMode_ = PropName "writingMode"
-x_ :: PropName JSString
-x_ = PropName "x"
-x1_ :: PropName JSString
-x1_ = PropName "x1"
-x2_ :: PropName JSString
-x2_ = PropName "x2"
-xChannelSelector_ :: PropName JSString
-xChannelSelector_ = PropName "xChannelSelector"
-xHeight_ :: PropName JSString
-xHeight_ = PropName "xHeight"
-xlinkActuate_ :: PropName JSString
-xlinkActuate_ = PropName "xlinkActuate"
-xlinkArcrole_ :: PropName JSString
-xlinkArcrole_ = PropName "xlinkArcrole"
-xlinkHref_ :: PropName JSString
-xlinkHref_ = PropName "xlinkHref"
-xlinkRole_ :: PropName JSString
-xlinkRole_ = PropName "xlinkRole"
-xlinkShow_ :: PropName JSString
-xlinkShow_ = PropName "xlinkShow"
-xlinkTitle_ :: PropName JSString
-xlinkTitle_ = PropName "xlinkTitle"
-xlinkType_ :: PropName JSString
-xlinkType_ = PropName "xlinkType"
-xmlBase_ :: PropName JSString
-xmlBase_ = PropName "xmlBase"
-xmlLang_ :: PropName JSString
-xmlLang_ = PropName "xmlLang"
-xmlSpace_ :: PropName JSString
-xmlSpace_ = PropName "xmlSpace"
-y_ :: PropName JSString
-y_ = PropName "y"
-y1_ :: PropName JSString
-y1_ = PropName "y1"
-y2_ :: PropName JSString
-y2_ = PropName "y2"
-yChannelSelector_ :: PropName JSString
-yChannelSelector_ = PropName "yChannelSelector"
-z_ :: PropName JSString
-z_ = PropName "z"
-zoomAndPan_ :: PropName JSString
-zoomAndPan_ = PropName "zoomAndPan"
+maskContentUnits_ :: IsProp p JSString => p
+maskContentUnits_ = mkProp "maskContentUnits"
+maskUnits_ :: IsProp p JSString => p
+maskUnits_ = mkProp "maskUnits"
+mathematical_ :: IsProp p JSString => p
+mathematical_ = mkProp "mathematical"
+mode_ :: IsProp p JSString => p
+mode_ = mkProp "mode"
+numOctaves_ :: IsProp p JSString => p
+numOctaves_ = mkProp "numOctaves"
+offset_ :: IsProp p JSString => p
+offset_ = mkProp "offset"
+opacity_ :: IsProp p JSString => p
+opacity_ = mkProp "opacity"
+operator_ :: IsProp p JSString => p
+operator_ = mkProp "operator"
+order_ :: IsProp p JSString => p
+order_ = mkProp "order"
+orient_ :: IsProp p JSString => p
+orient_ = mkProp "orient"
+orientation_ :: IsProp p JSString => p
+orientation_ = mkProp "orientation"
+origin_ :: IsProp p JSString => p
+origin_ = mkProp "origin"
+overflow_ :: IsProp p JSString => p
+overflow_ = mkProp "overflow"
+overlinePosition_ :: IsProp p JSString => p
+overlinePosition_ = mkProp "overlinePosition"
+overlineThickness_ :: IsProp p JSString => p
+overlineThickness_ = mkProp "overlineThickness"
+paintOrder_ :: IsProp p JSString => p
+paintOrder_ = mkProp "paintOrder"
+panose1_ :: IsProp p JSString => p
+panose1_ = mkProp "panose1"
+pathLength_ :: IsProp p JSString => p
+pathLength_ = mkProp "pathLength"
+patternContentUnits_ :: IsProp p JSString => p
+patternContentUnits_ = mkProp "patternContentUnits"
+patternTransform_ :: IsProp p JSString => p
+patternTransform_ = mkProp "patternTransform"
+patternUnits_ :: IsProp p JSString => p
+patternUnits_ = mkProp "patternUnits"
+pointerEvents_ :: IsProp p JSString => p
+pointerEvents_ = mkProp "pointerEvents"
+points_ :: IsProp p JSString => p
+points_ = mkProp "points"
+pointsAtX_ :: IsProp p JSString => p
+pointsAtX_ = mkProp "pointsAtX"
+pointsAtY_ :: IsProp p JSString => p
+pointsAtY_ = mkProp "pointsAtY"
+pointsAtZ_ :: IsProp p JSString => p
+pointsAtZ_ = mkProp "pointsAtZ"
+preserveAlpha_ :: IsProp p JSString => p
+preserveAlpha_ = mkProp "preserveAlpha"
+preserveAspectRatio_ :: IsProp p JSString => p
+preserveAspectRatio_ = mkProp "preserveAspectRatio"
+primitiveUnits_ :: IsProp p JSString => p
+primitiveUnits_ = mkProp "primitiveUnits"
+r_ :: IsProp p JSString => p
+r_ = mkProp "r"
+radius_ :: IsProp p JSString => p
+radius_ = mkProp "radius"
+refX_ :: IsProp p JSString => p
+refX_ = mkProp "refX"
+refY_ :: IsProp p JSString => p
+refY_ = mkProp "refY"
+renderingIntent_ :: IsProp p JSString => p
+renderingIntent_ = mkProp "renderingIntent"
+repeatCount_ :: IsProp p JSString => p
+repeatCount_ = mkProp "repeatCount"
+repeatDur_ :: IsProp p JSString => p
+repeatDur_ = mkProp "repeatDur"
+requiredExtensions_ :: IsProp p JSString => p
+requiredExtensions_ = mkProp "requiredExtensions"
+requiredFeatures_ :: IsProp p JSString => p
+requiredFeatures_ = mkProp "requiredFeatures"
+restart_ :: IsProp p JSString => p
+restart_ = mkProp "restart"
+result_ :: IsProp p JSString => p
+result_ = mkProp "result"
+rotate_ :: IsProp p JSString => p
+rotate_ = mkProp "rotate"
+rx_ :: IsProp p JSString => p
+rx_ = mkProp "rx"
+ry_ :: IsProp p JSString => p
+ry_ = mkProp "ry"
+scale_ :: IsProp p JSString => p
+scale_ = mkProp "scale"
+seed_ :: IsProp p JSString => p
+seed_ = mkProp "seed"
+shapeRendering_ :: IsProp p JSString => p
+shapeRendering_ = mkProp "shapeRendering"
+slope_ :: IsProp p JSString => p
+slope_ = mkProp "slope"
+spacing_ :: IsProp p JSString => p
+spacing_ = mkProp "spacing"
+specularConstant_ :: IsProp p JSString => p
+specularConstant_ = mkProp "specularConstant"
+specularExponent_ :: IsProp p JSString => p
+specularExponent_ = mkProp "specularExponent"
+speed_ :: IsProp p JSString => p
+speed_ = mkProp "speed"
+spreadMethod_ :: IsProp p JSString => p
+spreadMethod_ = mkProp "spreadMethod"
+startOffset_ :: IsProp p JSString => p
+startOffset_ = mkProp "startOffset"
+stdDeviation_ :: IsProp p JSString => p
+stdDeviation_ = mkProp "stdDeviation"
+stemh_ :: IsProp p JSString => p
+stemh_ = mkProp "stemh"
+stemv_ :: IsProp p JSString => p
+stemv_ = mkProp "stemv"
+stitchTiles_ :: IsProp p JSString => p
+stitchTiles_ = mkProp "stitchTiles"
+stopColor_ :: IsProp p JSString => p
+stopColor_ = mkProp "stopColor"
+stopOpacity_ :: IsProp p JSString => p
+stopOpacity_ = mkProp "stopOpacity"
+strikethroughPosition_ :: IsProp p JSString => p
+strikethroughPosition_ = mkProp "strikethroughPosition"
+strikethroughThickness_ :: IsProp p JSString => p
+strikethroughThickness_ = mkProp "strikethroughThickness"
+string_ :: IsProp p JSString => p
+string_ = mkProp "string"
+stroke_ :: IsProp p JSString => p
+stroke_ = mkProp "stroke"
+strokeDasharray_ :: IsProp p JSString => p
+strokeDasharray_ = mkProp "strokeDasharray"
+strokeDashoffset_ :: IsProp p JSString => p
+strokeDashoffset_ = mkProp "strokeDashoffset"
+strokeLinecap_ :: IsProp p JSString => p
+strokeLinecap_ = mkProp "strokeLinecap"
+strokeLinejoin_ :: IsProp p JSString => p
+strokeLinejoin_ = mkProp "strokeLinejoin"
+strokeMiterlimit_ :: IsProp p JSString => p
+strokeMiterlimit_ = mkProp "strokeMiterlimit"
+strokeOpacity_ :: IsProp p JSString => p
+strokeOpacity_ = mkProp "strokeOpacity"
+strokeWidth_ :: IsProp p JSString => p
+strokeWidth_ = mkProp "strokeWidth"
+surfaceScale_ :: IsProp p JSString => p
+surfaceScale_ = mkProp "surfaceScale"
+systemLanguage_ :: IsProp p JSString => p
+systemLanguage_ = mkProp "systemLanguage"
+tableValues_ :: IsProp p JSString => p
+tableValues_ = mkProp "tableValues"
+targetX_ :: IsProp p JSString => p
+targetX_ = mkProp "targetX"
+targetY_ :: IsProp p JSString => p
+targetY_ = mkProp "targetY"
+textAnchor_ :: IsProp p JSString => p
+textAnchor_ = mkProp "textAnchor"
+textDecoration_ :: IsProp p JSString => p
+textDecoration_ = mkProp "textDecoration"
+textLength_ :: IsProp p JSString => p
+textLength_ = mkProp "textLength"
+textRendering_ :: IsProp p JSString => p
+textRendering_ = mkProp "textRendering"
+to_ :: IsProp p JSString => p
+to_ = mkProp "to"
+transform_ :: IsProp p JSString => p
+transform_ = mkProp "transform"
+u1_ :: IsProp p JSString => p
+u1_ = mkProp "u1"
+u2_ :: IsProp p JSString => p
+u2_ = mkProp "u2"
+underlinePosition_ :: IsProp p JSString => p
+underlinePosition_ = mkProp "underlinePosition"
+underlineThickness_ :: IsProp p JSString => p
+underlineThickness_ = mkProp "underlineThickness"
+unicode_ :: IsProp p JSString => p
+unicode_ = mkProp "unicode"
+unicodeBidi_ :: IsProp p JSString => p
+unicodeBidi_ = mkProp "unicodeBidi"
+unicodeRange_ :: IsProp p JSString => p
+unicodeRange_ = mkProp "unicodeRange"
+unitsPerEm_ :: IsProp p JSString => p
+unitsPerEm_ = mkProp "unitsPerEm"
+vAlphabetic_ :: IsProp p JSString => p
+vAlphabetic_ = mkProp "vAlphabetic"
+vHanging_ :: IsProp p JSString => p
+vHanging_ = mkProp "vHanging"
+vIdeographic_ :: IsProp p JSString => p
+vIdeographic_ = mkProp "vIdeographic"
+vMathematical_ :: IsProp p JSString => p
+vMathematical_ = mkProp "vMathematical"
+values_ :: IsProp p JSString => p
+values_ = mkProp "values"
+vectorEffect_ :: IsProp p JSString => p
+vectorEffect_ = mkProp "vectorEffect"
+version_ :: IsProp p JSString => p
+version_ = mkProp "version"
+vertAdvY_ :: IsProp p JSString => p
+vertAdvY_ = mkProp "vertAdvY"
+vertOriginX_ :: IsProp p JSString => p
+vertOriginX_ = mkProp "vertOriginX"
+vertOriginY_ :: IsProp p JSString => p
+vertOriginY_ = mkProp "vertOriginY"
+viewBox_ :: IsProp p JSString => p
+viewBox_ = mkProp "viewBox"
+viewTarget_ :: IsProp p JSString => p
+viewTarget_ = mkProp "viewTarget"
+visibility_ :: IsProp p JSString => p
+visibility_ = mkProp "visibility"
+widths_ :: IsProp p JSString => p
+widths_ = mkProp "widths"
+wordSpacing_ :: IsProp p JSString => p
+wordSpacing_ = mkProp "wordSpacing"
+writingMode_ :: IsProp p JSString => p
+writingMode_ = mkProp "writingMode"
+x_ :: IsProp p JSString => p
+x_ = mkProp "x"
+x1_ :: IsProp p JSString => p
+x1_ = mkProp "x1"
+x2_ :: IsProp p JSString => p
+x2_ = mkProp "x2"
+xChannelSelector_ :: IsProp p JSString => p
+xChannelSelector_ = mkProp "xChannelSelector"
+xHeight_ :: IsProp p JSString => p
+xHeight_ = mkProp "xHeight"
+xlinkActuate_ :: IsProp p JSString => p
+xlinkActuate_ = mkProp "xlinkActuate"
+xlinkArcrole_ :: IsProp p JSString => p
+xlinkArcrole_ = mkProp "xlinkArcrole"
+xlinkHref_ :: IsProp p JSString => p
+xlinkHref_ = mkProp "xlinkHref"
+xlinkRole_ :: IsProp p JSString => p
+xlinkRole_ = mkProp "xlinkRole"
+xlinkShow_ :: IsProp p JSString => p
+xlinkShow_ = mkProp "xlinkShow"
+xlinkTitle_ :: IsProp p JSString => p
+xlinkTitle_ = mkProp "xlinkTitle"
+xlinkType_ :: IsProp p JSString => p
+xlinkType_ = mkProp "xlinkType"
+xmlBase_ :: IsProp p JSString => p
+xmlBase_ = mkProp "xmlBase"
+xmlLang_ :: IsProp p JSString => p
+xmlLang_ = mkProp "xmlLang"
+xmlSpace_ :: IsProp p JSString => p
+xmlSpace_ = mkProp "xmlSpace"
+y_ :: IsProp p JSString => p
+y_ = mkProp "y"
+y1_ :: IsProp p JSString => p
+y1_ = mkProp "y1"
+y2_ :: IsProp p JSString => p
+y2_ = mkProp "y2"
+yChannelSelector_ :: IsProp p JSString => p
+yChannelSelector_ = mkProp "yChannelSelector"
+z_ :: IsProp p JSString => p
+z_ = mkProp "z"
+zoomAndPan_ :: IsProp p JSString => p
+zoomAndPan_ = mkProp "zoomAndPan"
 
-dataAttr :: JSString -> PropName JSString
-dataAttr = PropName . JSString.append "data-"
+dataAttr :: JSString -> IsProp p JSString => p
+dataAttr = mkProp . JSString.append "data-"
 
-ariaAttr :: JSString -> PropName JSString
-ariaAttr = PropName . JSString.append "aria-"
+ariaAttr :: JSString -> IsProp p JSString => p
+ariaAttr = mkProp . JSString.append "aria-"
