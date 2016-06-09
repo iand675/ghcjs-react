@@ -113,6 +113,9 @@ children (Props o) =
 newtype Array a = Array JSArray
                 deriving (IsJSVal)
 
+instance PToJSVal (Array a) where
+  pToJSVal = unsafeCoerce
+
 array :: PToJSVal a => [a] -> Array a
 array = Array . fromList . map pToJSVal
 
