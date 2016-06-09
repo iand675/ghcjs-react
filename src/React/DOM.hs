@@ -3,16 +3,18 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE FlexibleContexts #-}
 module React.DOM where
+import qualified Data.Foldable as F
 import Data.Proxy
 import qualified Data.JSString as JSString
 import JavaScript.Object (Object)
 import GHCJS.Foreign
+import GHCJS.Marshal.Pure
 import GHCJS.Types
 import React
 
 foreign import javascript "React['DOM'][$1]($2, $3)" js_elem :: JSString -> Props ps -> JSVal -> ReactElement
-mkElem :: (Applicative t, Foldable t) => JSString -> t Prop -> Maybe (Array ReactElement) -> ReactElement
-mkElem str ps c = js_elem str (buildProps ps) (nullish c)
+mkElem :: (Applicative t, Foldable t, F.Foldable elems) => JSString -> t Prop -> elems ReactElement -> ReactElement
+mkElem str ps c = js_elem str (buildProps ps) (if Prelude.null c then jsNull else pToJSVal $ array $ F.toList c)
 
 mkEmptyElem :: (Applicative t, Foldable t) => JSString -> t Prop -> ReactElement
 mkEmptyElem str ps = js_elem str (buildProps ps) jsUndefined
@@ -20,7 +22,7 @@ mkEmptyElem str ps = js_elem str (buildProps ps) jsUndefined
 class ElementOrProp f t where
   symbolName :: JSString -> (f, Proxy t)
 
-instance (Applicative t, Foldable t) => ElementOrProp (t Prop -> Maybe (Array ReactElement) -> ReactElement) a where
+instance (Applicative t, Foldable t) => ElementOrProp (t Prop -> [ReactElement] -> ReactElement) a where
   symbolName n = (mkElem n, Proxy)
 
 instance (Applicative t, Foldable t) => ElementOrProp (t Prop -> ReactElement) a where
@@ -29,169 +31,169 @@ instance (Applicative t, Foldable t) => ElementOrProp (t Prop -> ReactElement) a
 instance ElementOrProp (PropName p) p where
   symbolName n = (PropName n, Proxy)
 
-a_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+a_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 a_ = mkElem "a"
 
-abbr_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+abbr_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 abbr_ = mkElem "abbr"
 
-address_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+address_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 address_ = mkElem "address"
 
 area_ :: (Applicative t, Foldable t) => t Prop -> ReactElement
 area_ = mkEmptyElem "area"
 
-article_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+article_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 article_ = mkElem "article"
 
-aside_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+aside_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 aside_ = mkElem "aside"
 
-audio_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+audio_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 audio_ = mkElem "audio"
 
-b_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+b_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 b_ = mkElem "b"
 
 base_ :: (Applicative t, Foldable t) => t Prop -> ReactElement
 base_ = mkEmptyElem "base"
 
-bdi_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+bdi_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 bdi_ = mkElem "bdi"
 
-bdo_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+bdo_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 bdo_ = mkElem "bdo"
 
-big_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+big_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 big_ = mkElem "big"
 
-blockquote_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+blockquote_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 blockquote_ = mkElem "blockquote"
 
-body_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+body_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 body_ = mkElem "body"
 
 br_ :: (Applicative t, Foldable t) => t Prop -> ReactElement
 br_ = mkEmptyElem "br"
 
-button_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+button_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 button_ = mkElem "button"
 
-canvas_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+canvas_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 canvas_ = mkElem "canvas"
 
-caption_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+caption_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 caption_ = mkElem "caption"
 
-circle_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+circle_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 circle_ = mkElem "circle"
 
-clipPath_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+clipPath_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 clipPath_ = mkElem "clipPath"
 
-code_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+code_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 code_ = mkElem "code"
 
 col_ :: (Applicative t, Foldable t) => t Prop -> ReactElement
 col_ = mkEmptyElem "col"
 
-colgroup_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+colgroup_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 colgroup_ = mkElem "colgroup"
 
-datalist_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+datalist_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 datalist_ = mkElem "datalist"
 
-dd_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+dd_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 dd_ = mkElem "dd"
 
-defs_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+defs_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 defs_ = mkElem "defs"
 
-del_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+del_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 del_ = mkElem "del"
 
-details_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+details_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 details_ = mkElem "details"
 
-dfn_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+dfn_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 dfn_ = mkElem "dfn"
 
-dialog_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+dialog_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 dialog_ = mkElem "dialog"
 
-div_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+div_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 div_ = mkElem "div"
 
-dl_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+dl_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 dl_ = mkElem "dl"
 
-dt_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+dt_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 dt_ = mkElem "dt"
 
-ellipse_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+ellipse_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 ellipse_ = mkElem "ellipse"
 
-em_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+em_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 em_ = mkElem "em"
 
 embed_ :: (Applicative t, Foldable t) => t Prop -> ReactElement
 embed_ = mkEmptyElem "embed"
 
-fieldset_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+fieldset_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 fieldset_ = mkElem "fieldset"
 
-figcaption_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+figcaption_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 figcaption_ = mkElem "figcaption"
 
-figure_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+figure_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 figure_ = mkElem "figure"
 
-footer_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+footer_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 footer_ = mkElem "footer"
 
-g_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+g_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 g_ = mkElem "g"
 
-h1_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+h1_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 h1_ = mkElem "h1"
 
-h2_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+h2_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 h2_ = mkElem "h2"
 
-h3_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+h3_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 h3_ = mkElem "h3"
 
-h4_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+h4_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 h4_ = mkElem "h4"
 
-h5_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+h5_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 h5_ = mkElem "h5"
 
-h6_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+h6_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 h6_ = mkElem "h6"
 
-head_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+head_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 head_ = mkElem "head"
 
-header_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+header_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 header_ = mkElem "header"
 
-hgroup_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+hgroup_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 hgroup_ = mkElem "hgroup"
 
 hr_ :: (Applicative t, Foldable t) => t Prop -> ReactElement
 hr_ = mkEmptyElem "hr"
 
-html_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+html_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 html_ = mkElem "html"
 
-i_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+i_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 i_ = mkElem "i"
 
-iframe_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+iframe_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 iframe_ = mkElem "iframe"
 
-image_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+image_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 image_ = mkElem "image"
 
 img_ :: (Applicative t, Foldable t) => t Prop -> ReactElement
@@ -200,40 +202,40 @@ img_ = mkEmptyElem "img"
 input_ :: (Applicative t, Foldable t) => t Prop -> ReactElement
 input_ = mkEmptyElem "input"
 
-ins_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+ins_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 ins_ = mkElem "ins"
 
-kbd_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+kbd_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 kbd_ = mkElem "kbd"
 
 keygen_ :: (Applicative t, Foldable t) => t Prop -> ReactElement
 keygen_ = mkEmptyElem "keygen"
 
-legend_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+legend_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 legend_ = mkElem "legend"
 
-li_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+li_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 li_ = mkElem "li"
 
-line_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+line_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 line_ = mkElem "line"
 
-linearGradient_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+linearGradient_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 linearGradient_ = mkElem "linearGradient"
 
 link_ :: (Applicative t, Foldable t) => t Prop -> ReactElement
 link_ = mkEmptyElem "link"
 
-main_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+main_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 main_ = mkElem "main"
 
-map_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+map_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 map_ = mkElem "map"
 
-mark_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+mark_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 mark_ = mkElem "mark"
 
-menu_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+menu_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 menu_ = mkElem "menu"
 
 menuitem_ :: (Applicative t, Foldable t) => t Prop -> ReactElement
@@ -242,151 +244,151 @@ menuitem_ = mkEmptyElem "menuitem"
 meta_ :: (Applicative t, Foldable t) => t Prop -> ReactElement
 meta_ = mkEmptyElem "meta"
 
-meter_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+meter_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 meter_ = mkElem "meter"
 
-nav_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+nav_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 nav_ = mkElem "nav"
 
-noscript_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+noscript_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 noscript_ = mkElem "noscript"
 
-object_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+object_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 object_ = mkElem "object"
 
-ol_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+ol_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 ol_ = mkElem "ol"
 
-optgroup_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+optgroup_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 optgroup_ = mkElem "optgroup"
 
-option_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+option_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 option_ = mkElem "option"
 
-output_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+output_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 output_ = mkElem "output"
 
-p_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+p_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 p_ = mkElem "p"
 
 param_ :: (Applicative t, Foldable t) => t Prop -> ReactElement
 param_ = mkEmptyElem "param"
 
-path_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+path_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 path_ = mkElem "path"
 
-picture_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+picture_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 picture_ = mkElem "picture"
 
-polygon_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+polygon_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 polygon_ = mkElem "polygon"
 
-polyline_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+polyline_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 polyline_ = mkElem "polyline"
 
-pre_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+pre_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 pre_ = mkElem "pre"
 
-progress_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+progress_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 progress_ = mkElem "progress"
 
-q_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+q_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 q_ = mkElem "q"
 
-radialGradient_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+radialGradient_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 radialGradient_ = mkElem "radialGradient"
 
-rect_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+rect_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 rect_ = mkElem "rect"
 
-rp_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+rp_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 rp_ = mkElem "rp"
 
-rt_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+rt_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 rt_ = mkElem "rt"
 
-ruby_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+ruby_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 ruby_ = mkElem "ruby"
 
-s_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+s_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 s_ = mkElem "s"
 
-samp_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+samp_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 samp_ = mkElem "samp"
 
-script_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+script_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 script_ = mkElem "script"
 
-section_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+section_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 section_ = mkElem "section"
 
-select_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+select_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 select_ = mkElem "select"
 
-small_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+small_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 small_ = mkElem "small"
 
 source_ :: (Applicative t, Foldable t) => t Prop -> ReactElement
 source_ = mkEmptyElem "source"
 
-stop_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+stop_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 stop_ = mkElem "stop"
 
-strong_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+strong_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 strong_ = mkElem "strong"
 
-sub_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+sub_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 sub_ = mkElem "sub"
 
-svg_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+svg_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 svg_ = mkElem "svg"
 
-table_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+table_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 table_ = mkElem "table"
 
-tbody_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+tbody_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 tbody_ = mkElem "tbody"
 
-td_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+td_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 td_ = mkElem "td"
 
-text_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+text_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 text_ = mkElem "text"
 
-textarea_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+textarea_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 textarea_ = mkElem "textarea"
 
-tfoot_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+tfoot_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 tfoot_ = mkElem "tfoot"
 
-th_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+th_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 th_ = mkElem "th"
 
-thead_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+thead_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 thead_ = mkElem "thead"
 
-time_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+time_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 time_ = mkElem "time"
 
-tr_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+tr_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 tr_ = mkElem "tr"
 
 track_ :: (Applicative t, Foldable t) => t Prop -> ReactElement
 track_ = mkEmptyElem "track"
 
-tspan_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+tspan_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 tspan_ = mkElem "tspan"
 
-u_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+u_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 u_ = mkElem "u"
 
-ul_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+ul_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 ul_ = mkElem "ul"
 
-var_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+var_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 var_ = mkElem "var"
 
-video_ :: (Applicative t, Foldable t) => t Prop -> Maybe (Array ReactElement) -> ReactElement
+video_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
 video_ = mkElem "video"
 
 wbr_ :: (Applicative t, Foldable t) => t Prop -> ReactElement
