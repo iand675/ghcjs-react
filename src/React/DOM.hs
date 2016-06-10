@@ -457,7 +457,7 @@ challenge_ = mkProp "challenge"
 charSet_ :: IsProp p JSString => p
 charSet_ = mkProp "charSet"
 
-checked_ :: IsProp p JSString => p
+checked_ :: IsProp p Bool => p
 checked_ = mkProp "checked"
 
 cite_ :: ElementOrProp p JSString => p
