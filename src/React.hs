@@ -249,7 +249,7 @@ newtype RendererM a = RendererM {fromRendererM :: StateT (IO ()) IO a }
   deriving (Functor, Applicative, Monad)
 
 data Spec ps st = Spec
-            { renderSpec                :: RendererM (This ps st -> Properties ps -> st -> ReactElement)
+            { renderSpec                :: RendererM (ReactM ps st ReactElement)
             , getInitialState           :: Maybe (IO st)
             , getDefaultProps           :: Maybe (IO (Props ps))
             -- , propTypes                 :: Maybe PropTypechecker
@@ -265,7 +265,7 @@ data Spec ps st = Spec
             , componentWillUnmount      :: Maybe (ReactM ps st ())
             }
 
-spec :: (ToJSVal ps, FromJSVal ps,ToJSVal st, FromJSVal st) => RendererM (This ps st -> Properties ps -> st -> ReactElement) -> Spec ps st
+spec :: (ToJSVal ps, FromJSVal ps,ToJSVal st, FromJSVal st) => RendererM (ReactM ps st ReactElement) -> Spec ps st
 spec f = Spec f Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing
 
 data SpecMaintenance = SpecMaintenance { specMaintenanceFinalize :: IO () }
@@ -302,11 +302,7 @@ buildSpec s = do
   (renderer, cleanup) <- runStateT (fromRendererM $ renderSpec s) (return ())
   o <- Object.create
   renderCb <- syncCallback1' $ \this -> do
-    let thisObj = unsafeCoerce this
-    ps <- readProperties =<< Object.getProp "props" thisObj
-    st <- Object.getProp "state" thisObj
-    stVal <- readState st
-    return $! fromReactElement $ renderer (This this) ps stVal
+    fromReactElement <$> runReaderT (fromReactM renderer) (This this)
 
   Object.setProp "render" (captureThis renderCb) o
 
@@ -727,3 +723,9 @@ inheritProp' :: This ps st -> JSString -> Prop
 inheritProp' this str = unsafePerformIO $ do
   p <- js_getProp this str
   return $ Prop str p
+
+{-
+
+A react element tree could have an intermediate representation that allows inline handlers -> pull them out from the IR when building the class
+
+-}
