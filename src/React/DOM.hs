@@ -16,16 +16,16 @@ import GHCJS.Types
 import React
 
 foreign import javascript "React['DOM'][$1]($2, $3)" js_elem :: JSString -> Props ps -> JSVal -> ReactElement
-mkElem :: (Applicative t, Foldable t, F.Foldable elems) => JSString -> t Prop -> elems ReactElement -> ReactElement
+mkElem :: (Applicative t, Foldable t, F.Foldable elems) => JSString -> t Prop -> ChildrenM ps st a -> ChildrenM ps st ()
 mkElem str ps c = js_elem str (buildProps ps) (if Prelude.null c then jsNull else pToJSVal $ array $ F.toList c)
 
-mkEmptyElem :: (Applicative t, Foldable t) => JSString -> t Prop -> ReactElement
+mkEmptyElem :: (Applicative t, Foldable t) => JSString -> t Prop -> ChildrenM ps st ()
 mkEmptyElem str ps = js_elem str (buildProps ps) jsUndefined
 
 class ElementOrProp f t where
   symbolName :: JSString -> (f, Proxy t)
 
-instance (Applicative t, Foldable t, Foldable elems) => ElementOrProp (t Prop -> elems ReactElement -> ReactElement) a where
+instance (Applicative t, Foldable t, Foldable elems) => ElementOrProp (t Prop -> ChildrenM a -> ReactElement) a where
   symbolName n = (mkElem n, Proxy)
 
 instance (Applicative t, Foldable t) => ElementOrProp (t Prop -> ReactElement) a where
@@ -45,367 +45,367 @@ instance IsProp (PropName t) t where
 instance PToJSVal t => IsProp (t -> Prop) t where
   mkProp str = (.:) (PropName str :: PropName t)
 
-a_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+a_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 a_ = mkElem "a"
 
-abbr_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+abbr_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 abbr_ = mkElem "abbr"
 
-address_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+address_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 address_ = mkElem "address"
 
-area_ :: (Applicative t, Foldable t) => t Prop -> ReactElement
+area_ :: (Applicative t, Foldable t) => t Prop -> ChildrenM ()
 area_ = mkEmptyElem "area"
 
-article_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+article_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 article_ = mkElem "article"
 
-aside_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+aside_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 aside_ = mkElem "aside"
 
-audio_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+audio_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 audio_ = mkElem "audio"
 
-b_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+b_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 b_ = mkElem "b"
 
-base_ :: (Applicative t, Foldable t) => t Prop -> ReactElement
+base_ :: (Applicative t, Foldable t) => t Prop -> ChildrenM ()
 base_ = mkEmptyElem "base"
 
-bdi_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+bdi_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 bdi_ = mkElem "bdi"
 
-bdo_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+bdo_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 bdo_ = mkElem "bdo"
 
-big_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+big_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 big_ = mkElem "big"
 
-blockquote_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+blockquote_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 blockquote_ = mkElem "blockquote"
 
-body_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+body_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 body_ = mkElem "body"
 
-br_ :: (Applicative t, Foldable t) => t Prop -> ReactElement
+br_ :: (Applicative t, Foldable t) => t Prop -> ChildrenM ()
 br_ = mkEmptyElem "br"
 
-button_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+button_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 button_ = mkElem "button"
 
-canvas_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+canvas_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 canvas_ = mkElem "canvas"
 
-caption_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+caption_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 caption_ = mkElem "caption"
 
-circle_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+circle_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 circle_ = mkElem "circle"
 
-clipPath_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+clipPath_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 clipPath_ = mkElem "clipPath"
 
-code_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+code_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 code_ = mkElem "code"
 
-col_ :: (Applicative t, Foldable t) => t Prop -> ReactElement
+col_ :: (Applicative t, Foldable t) => t Prop -> ChildrenM ()
 col_ = mkEmptyElem "col"
 
-colgroup_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+colgroup_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 colgroup_ = mkElem "colgroup"
 
-datalist_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+datalist_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 datalist_ = mkElem "datalist"
 
-dd_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+dd_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 dd_ = mkElem "dd"
 
-defs_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+defs_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 defs_ = mkElem "defs"
 
-del_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+del_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 del_ = mkElem "del"
 
-details_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+details_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 details_ = mkElem "details"
 
-dfn_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+dfn_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 dfn_ = mkElem "dfn"
 
-dialog_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+dialog_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 dialog_ = mkElem "dialog"
 
-div_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+div_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 div_ = mkElem "div"
 
-dl_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+dl_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 dl_ = mkElem "dl"
 
-dt_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+dt_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 dt_ = mkElem "dt"
 
-ellipse_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+ellipse_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 ellipse_ = mkElem "ellipse"
 
-em_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+em_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 em_ = mkElem "em"
 
-embed_ :: (Applicative t, Foldable t) => t Prop -> ReactElement
+embed_ :: (Applicative t, Foldable t) => t Prop -> ChildrenM ()
 embed_ = mkEmptyElem "embed"
 
-fieldset_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+fieldset_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 fieldset_ = mkElem "fieldset"
 
-figcaption_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+figcaption_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 figcaption_ = mkElem "figcaption"
 
-figure_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+figure_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 figure_ = mkElem "figure"
 
-footer_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+footer_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 footer_ = mkElem "footer"
 
-g_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+g_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 g_ = mkElem "g"
 
-h1_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+h1_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 h1_ = mkElem "h1"
 
-h2_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+h2_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 h2_ = mkElem "h2"
 
-h3_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+h3_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 h3_ = mkElem "h3"
 
-h4_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+h4_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 h4_ = mkElem "h4"
 
-h5_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+h5_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 h5_ = mkElem "h5"
 
-h6_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+h6_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 h6_ = mkElem "h6"
 
-head_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+head_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 head_ = mkElem "head"
 
-header_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+header_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 header_ = mkElem "header"
 
-hgroup_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+hgroup_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 hgroup_ = mkElem "hgroup"
 
-hr_ :: (Applicative t, Foldable t) => t Prop -> ReactElement
+hr_ :: (Applicative t, Foldable t) => t Prop -> ChildrenM ()
 hr_ = mkEmptyElem "hr"
 
-html_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+html_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 html_ = mkElem "html"
 
-i_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+i_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 i_ = mkElem "i"
 
-iframe_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+iframe_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 iframe_ = mkElem "iframe"
 
-image_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+image_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 image_ = mkElem "image"
 
-img_ :: (Applicative t, Foldable t) => t Prop -> ReactElement
+img_ :: (Applicative t, Foldable t) => t Prop -> ChildrenM ()
 img_ = mkEmptyElem "img"
 
-input_ :: (Applicative t, Foldable t) => t Prop -> ReactElement
+input_ :: (Applicative t, Foldable t) => t Prop -> ChildrenM ()
 input_ = mkEmptyElem "input"
 
-ins_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+ins_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 ins_ = mkElem "ins"
 
-kbd_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+kbd_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 kbd_ = mkElem "kbd"
 
-keygen_ :: (Applicative t, Foldable t) => t Prop -> ReactElement
+keygen_ :: (Applicative t, Foldable t) => t Prop -> ChildrenM ()
 keygen_ = mkEmptyElem "keygen"
 
-legend_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+legend_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 legend_ = mkElem "legend"
 
-li_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+li_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 li_ = mkElem "li"
 
-line_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+line_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 line_ = mkElem "line"
 
-linearGradient_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+linearGradient_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 linearGradient_ = mkElem "linearGradient"
 
-link_ :: (Applicative t, Foldable t) => t Prop -> ReactElement
+link_ :: (Applicative t, Foldable t) => t Prop -> ChildrenM ()
 link_ = mkEmptyElem "link"
 
-main_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+main_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 main_ = mkElem "main"
 
-map_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+map_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 map_ = mkElem "map"
 
-mark_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+mark_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 mark_ = mkElem "mark"
 
-menu_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+menu_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 menu_ = mkElem "menu"
 
-menuitem_ :: (Applicative t, Foldable t) => t Prop -> ReactElement
+menuitem_ :: (Applicative t, Foldable t) => t Prop -> ChildrenM ()
 menuitem_ = mkEmptyElem "menuitem"
 
-meta_ :: (Applicative t, Foldable t) => t Prop -> ReactElement
+meta_ :: (Applicative t, Foldable t) => t Prop -> ChildrenM ()
 meta_ = mkEmptyElem "meta"
 
-meter_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+meter_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 meter_ = mkElem "meter"
 
-nav_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+nav_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 nav_ = mkElem "nav"
 
-noscript_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+noscript_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 noscript_ = mkElem "noscript"
 
-object_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+object_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 object_ = mkElem "object"
 
-ol_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+ol_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 ol_ = mkElem "ol"
 
-optgroup_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+optgroup_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 optgroup_ = mkElem "optgroup"
 
-option_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+option_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 option_ = mkElem "option"
 
-output_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+output_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 output_ = mkElem "output"
 
-p_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+p_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 p_ = mkElem "p"
 
-param_ :: (Applicative t, Foldable t) => t Prop -> ReactElement
+param_ :: (Applicative t, Foldable t) => t Prop -> ChildrenM ()
 param_ = mkEmptyElem "param"
 
-path_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+path_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 path_ = mkElem "path"
 
-picture_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+picture_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 picture_ = mkElem "picture"
 
-polygon_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+polygon_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 polygon_ = mkElem "polygon"
 
-polyline_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+polyline_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 polyline_ = mkElem "polyline"
 
-pre_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+pre_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 pre_ = mkElem "pre"
 
-progress_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+progress_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 progress_ = mkElem "progress"
 
-q_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+q_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 q_ = mkElem "q"
 
-radialGradient_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+radialGradient_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 radialGradient_ = mkElem "radialGradient"
 
-rect_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+rect_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 rect_ = mkElem "rect"
 
-rp_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+rp_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 rp_ = mkElem "rp"
 
-rt_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+rt_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 rt_ = mkElem "rt"
 
-ruby_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+ruby_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 ruby_ = mkElem "ruby"
 
-s_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+s_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 s_ = mkElem "s"
 
-samp_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+samp_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 samp_ = mkElem "samp"
 
-script_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+script_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 script_ = mkElem "script"
 
-section_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+section_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 section_ = mkElem "section"
 
-select_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+select_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 select_ = mkElem "select"
 
-small_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+small_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 small_ = mkElem "small"
 
-source_ :: (Applicative t, Foldable t) => t Prop -> ReactElement
+source_ :: (Applicative t, Foldable t) => t Prop -> ChildrenM ()
 source_ = mkEmptyElem "source"
 
-stop_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+stop_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 stop_ = mkElem "stop"
 
-strong_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+strong_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 strong_ = mkElem "strong"
 
-sub_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+sub_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 sub_ = mkElem "sub"
 
-svg_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+svg_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 svg_ = mkElem "svg"
 
-table_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+table_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 table_ = mkElem "table"
 
-tbody_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+tbody_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 tbody_ = mkElem "tbody"
 
-td_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+td_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 td_ = mkElem "td"
 
-text_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+text_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 text_ = mkElem "text"
 
-textarea_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+textarea_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 textarea_ = mkElem "textarea"
 
-tfoot_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+tfoot_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 tfoot_ = mkElem "tfoot"
 
-th_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+th_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 th_ = mkElem "th"
 
-thead_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+thead_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 thead_ = mkElem "thead"
 
-time_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+time_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 time_ = mkElem "time"
 
-tr_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+tr_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 tr_ = mkElem "tr"
 
-track_ :: (Applicative t, Foldable t) => t Prop -> ReactElement
+track_ :: (Applicative t, Foldable t) => t Prop -> ChildrenM ()
 track_ = mkEmptyElem "track"
 
-tspan_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+tspan_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 tspan_ = mkElem "tspan"
 
-u_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+u_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 u_ = mkElem "u"
 
-ul_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+ul_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 ul_ = mkElem "ul"
 
-var_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+var_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 var_ = mkElem "var"
 
-video_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+video_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> ChildrenM a -> ChildrenM ()
 video_ = mkElem "video"
 
-wbr_ :: (Applicative t, Foldable t) => t Prop -> ReactElement
+wbr_ :: (Applicative t, Foldable t) => t Prop -> ChildrenM ()
 wbr_ = mkEmptyElem "wbr"
 
 

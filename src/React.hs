@@ -238,6 +238,14 @@ instance FromJSVal OnlyAttributes where
   fromJSVal _ = return $ Just OnlyAttributes
   fromJSValUnchecked _ = return OnlyAttributes
 
+class ReactReader m where
+  getThis  :: m ps st (This ps st)
+  getProps :: m ps st ps
+  getState :: m ps st st
+
+class ReactEditor m where
+  putState :: st -> m ps st ()
+
 newtype ReactM ps st a = ReactM {fromReactM :: ReaderT (This ps st) IO a }
   deriving (Functor, Applicative, Monad, MonadIO)
 
@@ -245,8 +253,36 @@ instance MonadReader (This ps st) (ReactM ps st) where
   ask = ReactM ask
   local f = ReactM . local f . fromReactM
 
-newtype RendererM a = RendererM {fromRendererM :: StateT (IO ()) IO a }
+newtype ChildrenM ps st a = ChildrenM { fromChildrenM :: ReaderT (This ps st, MutableJSArray {-# Either undefined or array #-}) IO a }
   deriving (Functor, Applicative, Monad)
+
+class MonadRenderer m where
+  type RendererContext m
+  type RendererInput   m :: *
+  type RendererResult  m :: *
+  handleElement :: RendererContext m -> RendererInput m -> m (RendererResult m)
+
+instance MonadRenderer (RendererM ps st) where
+  type RendererContext (RendererM ps st) = (Props ps -> JSVal -> ReactElement)
+  type RendererInput   (RendererM ps st) = (This ps st, ChildrenM ps st ())
+  type RendererResult  (RendererM ps st) = ReactElement
+
+instance MonadRenderer (ChildrenM ps st) where
+  type RendererContext (ChildrenM ps st) = (Props ps -> JSVal -> ReactElement)
+  type RendererInput  (ChildrenM ps st) = (Props ps, ChildrenM ps st ())
+  type RendererResult (ChildrenM ps st) = ()
+
+runChildrenM :: MonadIO m => This ps st -> ChildrenM ps st a -> m (a, MutableJSArray)
+runChildrenM this (ChildrenM m) = do
+  arr <- Arr.create
+  r <- runReaderT (this, arr)
+  return (r, arr)
+
+addChild' :: ReactElement -> ChildrenM ps st ()
+addChild' (ReactElement e) = ChildrenM $ do
+  (_, arr) <- ask
+  liftIO $ Arr.push e arr
+
 
 data Spec ps st = Spec
             { renderSpec                :: RendererM (ReactM ps st ReactElement)
