@@ -197,6 +197,9 @@ getProps = do
   v <- ask
   liftIO $ js_getProps v
 
+getProperties :: FromJSVal ps => ReactM ps st (Properties ps)
+getProperties = getProps >>= liftIO . readProperties . unsafeCoerce
+
 foreign import javascript unsafe "$1['state']" js_getState :: This ps st -> IO JSVal
 getState :: FromJSVal st => ReactM ps st st
 getState = do
