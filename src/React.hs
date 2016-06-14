@@ -607,6 +607,8 @@ newtype ClipboardEvent = ClipboardEvent Object.Object
 -- clipboardData :: ClipboardEvent -> m DataTransfer
 
 newtype CompositionEvent = CompositionEvent Object.Object
+instance SyntheticEvent CompositionEvent where
+  type NativeEvent CompositionEvent = JSVal
 -- data_ :: e -> m JSString
 
 newtype KeyboardEvent = KeyboardEvent Object.Object
@@ -633,7 +635,8 @@ instance SyntheticEvent FocusEvent where
 -- relatedTarget :: e -> m EventTarget
 
 newtype FormEvent = FormEvent Object.Object
-
+instance SyntheticEvent FormEvent where
+  type NativeEvent FormEvent = JSVal
 
 newtype MouseEvent = MouseEvent Object.Object
 instance SyntheticEvent MouseEvent where
@@ -656,6 +659,8 @@ screenY :: e -> m Int
 -}
 
 newtype SelectionEvent = SelectionEvent Object.Object
+instance SyntheticEvent SelectionEvent where
+  type NativeEvent SelectionEvent = JSVal
 
 newtype TouchEvent = TouchEvent Object.Object
 instance SyntheticEvent TouchEvent where
@@ -665,9 +670,20 @@ instance SyntheticEvent TouchEvent where
 
 
 newtype UIEvent = UIEvent Object.Object
+instance SyntheticEvent UIEvent where
+  type NativeEvent UIEvent = JSVal
+
 newtype WheelEvent = WheelEvent Object.Object
+instance SyntheticEvent WheelEvent where
+  type NativeEvent WheelEvent = JSVal
+
 newtype MediaEvent = MediaEvent Object.Object
+instance SyntheticEvent MediaEvent where
+  type NativeEvent MediaEvent = JSVal
+
 newtype ImageEvent = ImageEvent Object.Object
+instance SyntheticEvent ImageEvent where
+  type NativeEvent ImageEvent = JSVal
 
 newtype AnimationEvent = AnimationEvent Object.Object
 instance SyntheticEvent AnimationEvent where
@@ -689,7 +705,7 @@ noProps = []
 
 newtype This ps st = This { fromThis :: JSVal }
 
-foreign import javascript unsafe "$1.refs[$2]" js_getRef :: This ps st -> JSString -> JSVal
+foreign import javascript unsafe "$1['refs'][$2]" js_getRef :: This ps st -> JSString -> JSVal
 
 -- | There's no checking that the returned ReactComponent actually uses the @ps@ and @st@ types
 -- for its props and state, or that it conforms to the @t@ phantom type either, so a lot of safety
