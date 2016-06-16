@@ -766,7 +766,7 @@ type_ = mkProp "type"
 useMap_ :: IsProp p JSString => p
 useMap_ = mkProp "useMap"
 
-value_ :: IsProp p JSString => p
+value_ :: IsProp p (Maybe JSString) => p
 value_ = mkProp "value"
 
 width_ :: IsProp p Int => p
