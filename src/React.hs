@@ -224,6 +224,9 @@ setState' f = do
   liftIO $ js_setState v (jsval cb)
   liftIO $ releaseCallback cb
 
+modifyState :: (ToJSVal st, FromJSVal st) => (st -> st) -> ReactM ps st ()
+modifyState f = fmap f getState >>= setState
+
 -- forceUpdate :: f -> IO ()
 
 -- Component Specs and Lifecycle
@@ -734,6 +737,13 @@ getProp :: FromJSVal p => This ps st -> PropName p -> Maybe p
 getProp this (PropName p) = unsafePerformIO $ do
   p <- js_getProp this p
   fromJSVal p
+
+unsafeGetProp :: This ps st -> PropName p -> Maybe p
+unsafeGetProp this (PropName p) = unsafeCoerce $ unsafePerformIO $ do
+  p <- js_getProp this p
+  return $ if isTruthy p
+    then Just $ unsafeCoerce p
+    else Nothing
 
 inheritProp :: This ps st -> PropName p -> Prop
 inheritProp this (PropName p) = inheritProp' this p
