@@ -12,6 +12,7 @@ import Data.Traversable
 import Data.IORef
 import qualified Data.JSString as JSString
 import Data.String (IsString(..))
+import Data.Typeable
 import qualified GHCJS.DOM.AnimationEvent   as Animation
 import qualified GHCJS.DOM.CompositionEvent as Composition
 import qualified GHCJS.DOM.KeyboardEvent    as Keyboard
@@ -25,6 +26,7 @@ import GHCJS.DOM.EventTarget (EventTarget)
 import GHCJS.DOM.TouchList
 import GHCJS.Foreign
 import GHCJS.Foreign.Callback
+import GHCJS.Foreign.Export
 import GHCJS.Marshal
 import GHCJS.Marshal.Pure
 import GHCJS.Types
@@ -74,6 +76,18 @@ eventHandler f = RendererM $ do
 jsEventHandler :: JSVal -> EventHandler ps st a
 jsEventHandler = JSEventHandler
 
+callback :: (Typeable a, Typeable b) => (a -> b) -> RendererM (Callback (Export a -> IO (Export b)))
+callback f = RendererM $ do
+  cb <- liftIO $ syncCallback1' $ \exp -> do
+    v <- derefExport (unsafeCoerce exp :: Export a)
+    case v of
+      Nothing -> Prelude.error "Mismatched type or freed export value"
+      Just x -> do
+        let res = f x
+        jsval <$> export res
+  let cleaner = (>> releaseCallback cb)
+  modify cleaner
+  return $ unsafeCoerce cb
 
 data Prop = Prop {-# UNPACK #-} !JSString {-# UNPACK #-} !JSVal
 
