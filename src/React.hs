@@ -8,6 +8,7 @@ import Control.Monad.Reader
 import Control.Monad.State
 import Data.Foldable (traverse_)
 import qualified Data.Foldable as F
+import Data.JSString.Text
 import Data.Traversable
 import Data.IORef
 import qualified Data.JSString as JSString
@@ -784,6 +785,13 @@ instance ToReactElement Bool where
   toReactElement True = text "true"
   toReactElement False = text "false"
   {-# INLINE toReactElement #-}
+
+instance ToReactElement JSString where
+  toReactElement = text
+
+-- | Help compiler infer ReactElement for React.DOM parents that can be elements or attributes.
+text :: JSString -> ReactElement
+text = ReactElement . pToJSVal
 
 {-
 
