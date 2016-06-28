@@ -12,6 +12,8 @@ import Data.Traversable
 import Data.IORef
 import qualified Data.JSString as JSString
 import Data.String (IsString(..))
+import qualified Data.Text      as S
+import qualified Data.Text.Lazy as L
 import Data.Typeable
 import qualified GHCJS.DOM.AnimationEvent   as Animation
 import qualified GHCJS.DOM.CompositionEvent as Composition
@@ -37,13 +39,13 @@ import System.IO.Unsafe
 import Unsafe.Coerce
 
 class ElementType e where
-  toReactElement :: e -> JSVal
+  reactVal :: e -> JSVal
 
 instance ElementType JSString where
-  toReactElement = jsval
+  reactVal = jsval
 
 instance ElementType (ReactClass ps) where
-  toReactElement (ReactClass c) = c
+  reactVal (ReactClass c) = c
 
 newtype ReactClass ps = ReactClass JSVal
 
@@ -154,7 +156,7 @@ createElement :: (Applicative t, Foldable t, Foldable elems) => ReactClass ps ->
 createElement t ps es = createElement' t (buildProps ps) (if Prelude.null es then Nothing else Just $ array $ F.toList es)
 
 createElement' :: ReactClass ps -> Props ps -> Maybe (Array ReactElement) -> ReactElement
-createElement' t ps ma = js_createElement (toReactElement t) ps $ case ma of
+createElement' t ps ma = js_createElement (reactVal t) ps $ case ma of
   Nothing -> jsNull
   Just (Array a) -> jsval a
 
@@ -766,6 +768,22 @@ inheritProp' :: This ps st -> JSString -> Prop
 inheritProp' this str = unsafePerformIO $ do
   p <- js_getProp this str
   return $ Prop str p
+
+class ToReactElement a where
+  toReactElement :: a -> ReactElement
+
+instance ToReactElement S.Text where
+  toReactElement = text . textToJSString
+  {-# INLINE toReactElement #-}
+
+instance ToReactElement L.Text where
+  toReactElement = text . lazyTextToJSString
+  {-# INLINE toReactElement #-}
+
+instance ToReactElement Bool where
+  toReactElement True = text "true"
+  toReactElement False = text "false"
+  {-# INLINE toReactElement #-}
 
 {-
 
