@@ -1,11 +1,10 @@
-{-# LANGUAGE OverloadedStrings      #-}
-{-# LANGUAGE FlexibleInstances      #-}
-{-# LANGUAGE MultiParamTypeClasses  #-}
-{-# LANGUAGE FlexibleContexts       #-}
-{-# LANGUAGE RankNTypes             #-}
-{-# LANGUAGE ScopedTypeVariables    #-}
+{-# LANGUAGE OverloadedStrings     #-}
+{-# LANGUAGE FlexibleInstances     #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE FlexibleContexts      #-}
+{-# LANGUAGE RankNTypes            #-}
+{-# LANGUAGE ScopedTypeVariables   #-}
 {-# LANGUAGE FunctionalDependencies #-}
-{-# LANGUAGE TypeFamilies           #-}
 module React.DOM where
 import qualified Data.Foldable as F
 import Data.Proxy
@@ -17,7 +16,6 @@ import GHCJS.Types
 import React
 
 foreign import javascript "React['DOM'][$1]($2, $3)" js_elem :: JSString -> Props ps -> JSVal -> ReactElement
-
 mkElem :: (Applicative t, Foldable t, F.Foldable elems) => JSString -> t Prop -> elems ReactElement -> ReactElement
 mkElem str ps c = js_elem str (buildProps ps) (if Prelude.null c then jsNull else pToJSVal $ array $ F.toList c)
 
@@ -27,16 +25,16 @@ mkEmptyElem str ps = js_elem str (buildProps ps) jsUndefined
 class ElementOrProp f t where
   symbolName :: JSString -> (f, Proxy t)
 
-instance (Applicative t, Foldable t, Foldable elems, e ~ ReactElement) => ElementOrProp (t Prop -> elems e -> e) a where
+instance (Applicative t, Foldable t, Foldable elems) => ElementOrProp (t Prop -> elems ReactElement -> ReactElement) a where
   symbolName n = (mkElem n, Proxy)
 
-instance (Applicative t, Foldable t, e ~ ReactElement) => ElementOrProp (t Prop -> e) a where
+instance (Applicative t, Foldable t) => ElementOrProp (t Prop -> ReactElement) a where
   symbolName n = (mkEmptyElem n, Proxy)
 
 instance ElementOrProp (PropName t) t where
   symbolName n = (PropName n, Proxy)
 
-instance (PToJSVal t, t ~ t') => ElementOrProp (t -> Prop) t' where
+instance PToJSVal t => ElementOrProp (t -> Prop) t where
   symbolName n = ((.:) (PropName n :: PropName t), Proxy)
 
 class IsProp f t | f -> t where
