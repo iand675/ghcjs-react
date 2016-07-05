@@ -79,14 +79,16 @@ eventHandler f = RendererM $ do
 jsEventHandler :: JSVal -> EventHandler ps st a
 jsEventHandler = JSEventHandler
 
-callback :: (Typeable a, Typeable b) => (a -> b) -> RendererM (Callback (Export a -> IO (Export b)))
+callback :: (Typeable a, Typeable b, Show a, Show b) => (a -> b) -> RendererM (Callback (Export a -> IO (Export b)))
 callback f = RendererM $ do
   cb <- liftIO $ syncCallback1' $ \exp -> do
     v <- derefExport (unsafeCoerce exp :: Export a)
     case v of
       Nothing -> Prelude.error "Mismatched type or freed export value"
       Just x -> do
+        print x
         let res = f x
+        print res
         jsval <$> export res
   let cleaner = (>> releaseCallback cb)
   modify cleaner
@@ -161,12 +163,21 @@ createElement' t ps ma = js_createElement (reactVal t) ps $ case ma of
   Nothing -> jsNull
   Just (Array a) -> jsval a
 
-foreign import javascript unsafe "React.cloneElement($1, $2, $3)" cloneElement :: ReactElement -> Props ps -> Array ReactElement -> ReactElement
+newtype Factory ps = Factory {factoryVal :: JSVal}
 
-{-
-createFactory :: ElementType e => e -> a
-createFactory = undefined
--}
+foreign import javascript "$1($2,$3)" fromFactory :: Factory ps -> Props ps -> JSVal -> ReactElement
+
+foreign import javascript unsafe "React.createFactory($1)" createFactory :: ReactClass ps -> Factory ps
+
+runFactory :: (Applicative t, Foldable t, Foldable elems) => Factory ps -> t Prop -> elems ReactElement -> ReactElement
+runFactory f ps es = runFactory' f (buildProps ps) (if Prelude.null es then Nothing else Just $ array $ F.toList es)
+
+runFactory' :: Factory ps -> Props ps -> Maybe (Array ReactElement) -> ReactElement
+runFactory' f ps ma = (fromFactory f) ps $ case ma of
+  Nothing -> jsNull
+  Just (Array a) -> jsval a
+
+foreign import javascript unsafe "React.cloneElement($1, $2, $3)" cloneElement :: ReactElement -> Props ps -> Array ReactElement -> ReactElement
 
 foreign import javascript unsafe "React.isValidElement($1)" isValidElement :: JSVal -> IO Bool
 
