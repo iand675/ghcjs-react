@@ -760,18 +760,42 @@ makeClass newName n = do
     noInlineFun = PragmaD $ InlineP newName' NoInline FunLike AllPhases
 
 foreign import javascript unsafe "($1 ? $1.props[$2] : null)" js_getProp :: This ps st -> JSString -> IO JSVal
+foreign import javascript unsafe "$1[$2]" js_deref :: Props ps -> JSString -> IO JSVal
 
-getProp :: FromJSVal p => This ps st -> PropName p -> Maybe p
-getProp this (PropName p) = unsafePerformIO $ do
-  p <- js_getProp this p
-  fromJSVal p
+class GetProp a where
+  getProp :: FromJSVal p => a -> PropName p -> Maybe p
+  unsafeGetProp :: a -> PropName p -> Maybe p
 
-unsafeGetProp :: This ps st -> PropName p -> Maybe p
-unsafeGetProp this (PropName p) = unsafeCoerce $ unsafePerformIO $ do
-  p <- js_getProp this p
-  return $ if isTruthy p
-    then Just $ unsafeCoerce p
-    else Nothing
+instance GetProp (This ps st) where
+  getProp this (PropName p) = unsafePerformIO $ do
+    p <- js_getProp this p
+    if isTruthy p
+      then fromJSVal p
+      else return Nothing
+
+  unsafeGetProp this (PropName p) = unsafeCoerce $ unsafePerformIO $ do
+    p <- js_getProp this p
+    return $ if isTruthy p
+      then Just $ unsafeCoerce p
+      else Nothing
+
+instance GetProp (Props a) where
+  getProp allProps (PropName p) = unsafePerformIO $ do
+    p <- js_deref allProps p
+    if isTruthy p
+      then fromJSVal p
+      else return Nothing
+
+  unsafeGetProp allProps (PropName p) = unsafeCoerce $ unsafePerformIO $ do
+    p <- js_deref allProps p
+    return $ if isTruthy p
+      then Just $ unsafeCoerce p
+      else Nothing
+
+instance GetProp (Properties a) where
+  getProp (Properties _ allProps) = getProp allProps
+  getProp (Properties _ allProps) = unsafeGetProp allProps
+
 
 inheritProp :: This ps st -> PropName p -> Prop
 inheritProp this (PropName p) = inheritProp' this p
