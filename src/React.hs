@@ -284,7 +284,7 @@ newtype RendererM a = RendererM {fromRendererM :: StateT (IO ()) IO a }
 
 data Spec ps st = Spec
             { renderSpec                :: RendererM (ReactM ps st ReactElement)
-            , getInitialState           :: Maybe (IO st)
+            , getInitialState           :: Maybe (ReactM ps st st)
             , getDefaultProps           :: Maybe (IO (Props ps))
             -- , propTypes                 :: Maybe PropTypechecker
             -- , mixins                    :: Maybe (Array Mixin)
@@ -340,9 +340,9 @@ buildSpec s = do
 
   Object.setProp "render" (captureThis renderCb) o
 
-  mGetInitialStateCb <- for (getInitialState s) $ \m -> do
-    getInitialStateCb <- syncCallback' (toJSVal =<< m)
-    Object.setProp "getInitialState" (jsval getInitialStateCb) o
+  mGetInitialStateCb <- for (getInitialState s) $ \f -> do
+    getInitialStateCb <- syncCallback1' ((runReaderT (fromReactM f) . This) >=> toJSVal)
+    Object.setProp "getInitialState" (captureThis getInitialStateCb) o
     return getInitialStateCb
 
   mGetDefaultPropsCb <- for (getDefaultProps s) $ \m -> do
