@@ -57,6 +57,12 @@ newtype ReactElement = ReactElement { fromReactElement :: JSVal } -- Either func
 instance PToJSVal ReactElement where
   pToJSVal = fromReactElement
 
+instance ToJSVal ReactElement where
+  toJSVal = return . fromReactElement
+
+instance FromJSVal ReactElement where
+  fromJSVal = return . Just . ReactElement
+
 instance IsString ReactElement where
   fromString = ReactElement . pToJSVal . JSString.pack
 
