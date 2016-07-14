@@ -3,11 +3,14 @@
 {-# LANGUAGE OverloadedStrings          #-}
 {-# LANGUAGE TemplateHaskell            #-}
 {-# LANGUAGE TypeFamilies               #-}
+{-# LANGUAGE TypeSynonymInstances       #-}
+{-# LANGUAGE FlexibleInstances          #-}
 module React where
 import Control.Monad.Reader
 import Control.Monad.State
 import Data.Foldable (traverse_)
 import qualified Data.Foldable as F
+import Data.Text (Text)
 import Data.JSString.Text
 import Data.Traversable
 import Data.IORef
@@ -823,16 +826,28 @@ instance ToReactElement L.Text where
   {-# INLINE toReactElement #-}
 
 instance ToReactElement Bool where
-  toReactElement True = text "true"
-  toReactElement False = text "false"
+  toReactElement True = text ("true" :: JSString)
+  toReactElement False = text ("false" :: JSString)
   {-# INLINE toReactElement #-}
 
 instance ToReactElement JSString where
   toReactElement = text
 
--- | Help compiler infer ReactElement for React.DOM parents that can be elements or attributes.
-text :: JSString -> ReactElement
-text = ReactElement . pToJSVal
+text' :: JSString -> ReactElement
+text' = text
+{-# INLINE text' #-}
+
+class ReactText a where
+  text :: a -> ReactElement
+
+instance ReactText JSString where
+  text = ReactElement . pToJSVal
+
+instance ReactText Text where
+  text = ReactElement . pToJSVal
+
+instance ReactText String where
+  text = ReactElement . pToJSVal
 
 {-
 
