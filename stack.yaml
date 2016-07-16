@@ -6,5 +6,6 @@ extra-deps:
 - ghcjs-dom-0.2.3.1
 - transformers-base-0.4.4
 - transformers-compat-0.5.1.4
+- monad-control-1.0.1.0
 compiler: ghcjs-0.2.0_ghc-7.10.2
 resolver: ghcjs-0.2.0_ghc-7.10.2

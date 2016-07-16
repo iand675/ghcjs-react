@@ -8,6 +8,7 @@
 {-# LANGUAGE StandaloneDeriving         #-}
 module React where
 import Control.Monad.Base
+import Control.Monad.Trans.Control
 import Control.Monad.Reader
 import Control.Monad.State
 import Data.Foldable (traverse_)
@@ -287,6 +288,10 @@ newtype ReactM ps st a = ReactM {fromReactM :: ReaderT (This ps st) IO a }
   deriving (Functor, Applicative, Monad, MonadIO)
 
 deriving instance MonadBase IO (ReactM ps st)
+instance MonadBaseControl IO (ReactM ps st) where
+  type StM (ReactM ps st) a = a
+  liftBaseWith f = ReactM $ liftBaseWith $ \q -> f (q . fromReactM)
+  restoreM = ReactM . restoreM
 
 instance MonadReader (This ps st) (ReactM ps st) where
   ask = ReactM ask
