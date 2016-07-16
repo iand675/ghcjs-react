@@ -5,7 +5,9 @@
 {-# LANGUAGE TypeFamilies               #-}
 {-# LANGUAGE TypeSynonymInstances       #-}
 {-# LANGUAGE FlexibleInstances          #-}
+{-# LANGUAGE StandaloneDeriving         #-}
 module React where
+import Control.Monad.Base
 import Control.Monad.Reader
 import Control.Monad.State
 import Data.Foldable (traverse_)
@@ -283,6 +285,8 @@ instance FromJSVal OnlyAttributes where
 
 newtype ReactM ps st a = ReactM {fromReactM :: ReaderT (This ps st) IO a }
   deriving (Functor, Applicative, Monad, MonadIO)
+
+deriving instance MonadBase IO (ReactM ps st)
 
 instance MonadReader (This ps st) (ReactM ps st) where
   ask = ReactM ask
