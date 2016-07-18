@@ -220,8 +220,8 @@ unmountComponentAtNode = js_unmountComponentAtNode . toElement
 
 foreign import javascript unsafe "ReactDOM.findDOMNode($1)" js_findDOMNode :: ReactComponent t ps st -> IO JSVal
 
-findDOMNode :: ReactComponent t ps st -> IO (Maybe Element)
-findDOMNode c = do
+findDOMNode :: MonadIO m => ReactComponent t ps st -> m (Maybe Element)
+findDOMNode c = liftIO $ do
   val <- js_findDOMNode c
   return $ if isObject val
     then Just $ unsafeCoerce val
