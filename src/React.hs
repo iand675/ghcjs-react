@@ -56,8 +56,6 @@ instance ElementType (ReactClass ps) where
 
 newtype ReactClass ps = ReactClass JSVal
 
-newtype ReactComponent t ps st = ReactComponent (This ps st)
-
 newtype ReactElement = ReactElement { fromReactElement :: JSVal } -- Either function for stateless or component
 
 instance PToJSVal ReactElement where
@@ -218,9 +216,9 @@ foreign import javascript unsafe "ReactDOM.unmountComponentAtNode($1)" js_unmoun
 unmountComponentAtNode :: IsElement e => e -> IO Bool
 unmountComponentAtNode = js_unmountComponentAtNode . toElement
 
-foreign import javascript unsafe "ReactDOM.findDOMNode($1)" js_findDOMNode :: ReactComponent t ps st -> IO JSVal
+foreign import javascript unsafe "ReactDOM.findDOMNode($1)" js_findDOMNode :: This ps st -> IO JSVal
 
-findDOMNode :: MonadIO m => ReactComponent t ps st -> m (Maybe Element)
+findDOMNode :: MonadIO m => This ps st -> m (Maybe Element)
 findDOMNode c = liftIO $ do
   val <- js_findDOMNode c
   return $ if isObject val
@@ -286,6 +284,9 @@ instance FromJSVal OnlyAttributes where
 
 newtype ReactM ps st a = ReactM {fromReactM :: ReaderT (This ps st) IO a }
   deriving (Functor, Applicative, Monad, MonadIO)
+
+runReactM :: MonadIO m => This ps st -> ReactM ps st a -> m a
+runReactM t m = liftIO $ runReaderT (fromReactM m) t
 
 deriving instance MonadBase IO (ReactM ps st)
 instance MonadBaseControl IO (ReactM ps st) where
@@ -759,12 +760,12 @@ foreign import javascript unsafe "$1['refs'][$2]" js_getRef :: This ps st -> JSS
 -- | There's no checking that the returned ReactComponent actually uses the @ps@ and @st@ types
 -- for its props and state, or that it conforms to the @t@ phantom type either, so a lot of safety
 -- goes out the window here.
-unsafeGetRef :: JSString -> ReactM ps st (Maybe (ReactComponent t ps' st'))
+unsafeGetRef :: JSString -> ReactM ps st (Maybe (This ps' st'))
 unsafeGetRef str = do
   this <- ask
   let ref = js_getRef this str
   return $! if isTruthy ref
-    then Just $ ReactComponent $ This ref
+    then Just $ This ref
     else Nothing
 
 makeClass :: String -> ExpQ -> DecsQ
