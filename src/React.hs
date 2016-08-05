@@ -126,6 +126,7 @@ instance Monoid (Props ps) where
     return $ Props res
 
 newtype SanitizedHtml = SanitizedHtml JSString
+  deriving (Eq, Show)
 
 instance PToJSVal SanitizedHtml where
   pToJSVal (SanitizedHtml h) = unsafePerformIO $ do
