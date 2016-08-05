@@ -827,7 +827,7 @@ instance GetProp (Props a) where
 
 instance GetProp (Properties a) where
   getProp (Properties _ allProps) = getProp allProps
-  getProp (Properties _ allProps) = unsafeGetProp allProps
+  unsafeGetProp (Properties _ allProps) = unsafeGetProp allProps
 
 
 inheritProp :: This ps st -> PropName p -> Prop
