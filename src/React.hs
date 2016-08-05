@@ -40,6 +40,7 @@ import GHCJS.Marshal
 import GHCJS.Marshal.Pure
 import GHCJS.Types
 import qualified JavaScript.Object as Object
+import qualified JavaScript.Object.Internal as OI
 import JavaScript.Array
 import Language.Haskell.TH
 import System.IO.Unsafe
@@ -131,6 +132,19 @@ instance PToJSVal SanitizedHtml where
     o <- Object.create
     Object.setProp "__html" (jsval h) o
     return $ jsval o
+
+instance FromJSVal SanitizedHtml where
+  fromJSVal r = case jsonTypeOf r of
+    JSONObject -> do
+      let o = OI.Object r
+      str <- Object.getProp "__html" o
+      fmap SanitizedHtml <$> fromJSVal str
+    _ -> return Nothing
+  {-# INLINE fromJSVal #-}
+
+instance ToJSVal SanitizedHtml where
+  toJSVal = return . pToJSVal
+  {-# INLINE toJSVal #-}
 
 children :: Props st -> Maybe (Array ReactElement)
 children (Props o) =
