@@ -53,21 +53,24 @@ library
                        monad-control
   hs-source-dirs:      src
   default-language:    Haskell2010
-  js-sources:          js/wrappers.js
 
   if flag(development) && flag(addons)
     js-sources:        js/react-with-addons.js,
-                       js/react-dom.js
+                       js/react-dom.js,
+                       js/wrappers.js
 
   if flag(development) && !flag(addons)
     js-sources:        js/react.js,
-                       js/react-dom.js
+                       js/react-dom.js,
+                       js/wrappers.js
 
   if !flag(development) && !flag(addons)
     js-sources:        js/react.min.js,
-                       js/react-dom.min.js
+                       js/react-dom.min.js,
+                       js/wrappers.js
 
   if !flag(development) && flag(addons)
     js-sources:        js/react-with-addons.min.js,
-                       js/react-dom.min.js
+                       js/react-dom.min.js,
+                       js/wrappers.js
   
