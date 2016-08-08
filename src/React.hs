@@ -333,8 +333,11 @@ data Spec ps st = Spec
             , componentWillUnmount      :: Maybe (ReactM ps st ())
             }
 
-spec :: (ToJSVal ps, FromJSVal ps,ToJSVal st, FromJSVal st) => RendererM (ReactM ps st ReactElement) -> Spec ps st
+spec :: (ToJSVal ps, FromJSVal ps) => RendererM (ReactM ps OnlyAttributes ReactElement) -> Spec ps OnlyAttributes
 spec f = Spec f Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing
+
+statefulSpec :: (ToJSVal ps, FromJSVal ps, ToJSVal st, FromJSVal st) => ReactM ps st st -> RendererM (ReactM ps st ReactElement) -> Spec ps st
+statefulSpec st f = Spec f (Just st) Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing
 
 data SpecMaintenance = SpecMaintenance { specMaintenanceFinalize :: IO () }
 
