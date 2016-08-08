@@ -508,7 +508,7 @@ defer_ = mkProp "defer"
 dir_ :: IsProp p JSString => p
 dir_ = mkProp "dir"
 
-disabled_ :: IsProp p JSString => p
+disabled_ :: IsProp p Bool => p
 disabled_ = mkProp "disabled"
 
 download_ :: IsProp p JSString => p
