@@ -33,6 +33,7 @@ import GHCJS.DOM.DataTransfer
 import GHCJS.DOM.Element
 import GHCJS.DOM.EventTarget (EventTarget)
 import GHCJS.DOM.TouchList
+import GHCJS.DOM.Types (GObject(..), IsGObject(..), IsEventTarget(..))
 import GHCJS.Foreign
 import GHCJS.Foreign.Callback
 import GHCJS.Foreign.Export
@@ -70,6 +71,13 @@ instance FromJSVal ReactElement where
 
 instance IsString ReactElement where
   fromString = ReactElement . pToJSVal . JSString.pack
+
+-- TODO these should probably be conditonally included only for GHCJS
+instance IsGObject ReactElement where
+  toGObject (ReactElement val) = GObject val
+  unsafeCastGObject (GObject val) = ReactElement val
+
+instance IsEventTarget ReactElement
 
 newtype PropName v = PropName JSString
 
@@ -325,8 +333,14 @@ data Spec ps st = Spec
             , statics                   :: Maybe Object.Object
             , displayName               :: Maybe JSString
             , componentWillMount        :: Maybe (ReactM ps st ())
+            -- ^ Invoked once, both on the client and server, immediately before the initial rendering occurs. If you call setState within this method, render() will see the updated state and will be executed only once despite the state change.
             , componentDidMount         :: Maybe (ReactM ps st ())
+            -- ^ Invoked once, only on the client (not on the server), immediately after the initial rendering occurs. At this point in the lifecycle, you can access any refs to your children (e.g., to access the underlying DOM representation). The componentDidMount() method of child components is invoked before that of parent components.
+            -- If you want to integrate with other JavaScript frameworks, set timers using setTimeout or setInterval, or send AJAX requests, perform those operations in this method.
             , componentWillReceiveProps :: Maybe (Properties ps -> ReactM ps st ())
+            -- ^ Invoked when a component is receiving new props. This method is not called for the initial render.
+            -- Use this as an opportunity to react to a prop transition before render() is called by updating the state using this.setState(). The old props can be accessed via this.props. Calling this.setState() within this function will not trigger an additional render.
+
             , shouldComponentUpdate     :: Maybe (Properties ps -> st -> ReactM ps st Bool)
             , componentWillUpdate       :: Maybe (Properties ps -> st -> ReactM ps st ())
             , componentDidUpdate        :: Maybe (Properties ps -> st -> ReactM ps st ())
