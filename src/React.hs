@@ -60,6 +60,14 @@ newtype ReactClass ps = ReactClass JSVal
 
 newtype ReactElement = ReactElement { fromReactElement :: JSVal } -- Either function for stateless or component
 
+newtype ReactInstance ps = ReactInstance { fromReactInstance :: JSVal }
+
+instanceThis :: ReactInstance ps -> This ps OnlyAttributes
+instanceThis = This . fromReactInstance
+
+instanceElement :: ReactInstance ps -> Element
+instanceElement = unsafeCastGObject . GObject . fromReactInstance
+
 instance PToJSVal ReactElement where
   pToJSVal = fromReactElement
 
@@ -792,12 +800,12 @@ foreign import javascript unsafe "$1['refs'][$2]" js_getRef :: This ps st -> JSS
 -- | There's no checking that the returned ReactComponent actually uses the @ps@ and @st@ types
 -- for its props and state, or that it conforms to the @t@ phantom type either, so a lot of safety
 -- goes out the window here.
-unsafeGetRef :: JSString -> ReactM ps st (Maybe (This ps' st'))
+unsafeGetRef :: JSString -> ReactM ps st (Maybe (ReactInstance ps'))
 unsafeGetRef str = do
   this <- ask
   let ref = js_getRef this str
   return $! if isTruthy ref
-    then Just $ This ref
+    then Just $ ReactInstance ref
     else Nothing
 
 makeClass :: String -> ExpQ -> DecsQ
