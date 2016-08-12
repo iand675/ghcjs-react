@@ -61,12 +61,12 @@ newtype ReactClass ps = ReactClass JSVal
 
 newtype ReactElement = ReactElement { fromReactElement :: JSVal } -- Either function for stateless or component
 
-newtype ReactInstance ps = ReactInstance { fromReactInstance :: JSVal }
+newtype ReactInstance ps st = ReactInstance { fromReactInstance :: JSVal }
 
-instanceThis :: ReactInstance ps -> This ps OnlyAttributes
+instanceThis :: ReactInstance ps st -> This ps st
 instanceThis = This . fromReactInstance
 
-instanceElement :: ReactInstance ps -> Element
+instanceElement :: ReactInstance ps st -> Element
 instanceElement = unsafeCastGObject . GObject . fromReactInstance
 
 instance PToJSVal ReactElement where
@@ -248,9 +248,9 @@ foreign import javascript unsafe "ReactDOM.unmountComponentAtNode($1)" js_unmoun
 unmountComponentAtNode :: IsElement e => e -> IO Bool
 unmountComponentAtNode = js_unmountComponentAtNode . toElement
 
-foreign import javascript unsafe "ReactDOM.findDOMNode($1)" js_findDOMNode :: ReactInstance ps -> IO (Nullable Element)
+foreign import javascript unsafe "ReactDOM.findDOMNode($1)" js_findDOMNode :: ReactInstance ps st -> IO (Nullable Element)
 
-findDOMNode :: MonadIO m => ReactInstance ps -> m (Maybe Element)
+findDOMNode :: MonadIO m => ReactInstance ps st -> m (Maybe Element)
 findDOMNode c = liftIO (nullableToMaybe <$> js_findDOMNode c)
 
 {-
@@ -797,7 +797,7 @@ foreign import javascript unsafe "$1['refs'][$2]" js_getRef :: This ps st -> JSS
 -- | There's no checking that the returned ReactComponent actually uses the @ps@ and @st@ types
 -- for its props and state, or that it conforms to the @t@ phantom type either, so a lot of safety
 -- goes out the window here.
-unsafeGetRef :: JSString -> ReactM ps st (Maybe (ReactInstance ps'))
+unsafeGetRef :: JSString -> ReactM ps st (Maybe (ReactInstance ps' st'))
 unsafeGetRef str = do
   this <- ask
   let ref = js_getRef this str
