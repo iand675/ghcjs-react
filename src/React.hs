@@ -39,6 +39,7 @@ import GHCJS.Foreign.Callback
 import GHCJS.Foreign.Export
 import GHCJS.Marshal
 import GHCJS.Marshal.Pure
+import GHCJS.Nullable (Nullable(..), nullableToMaybe)
 import GHCJS.Types
 import qualified JavaScript.Object as Object
 import qualified JavaScript.Object.Internal as OI
@@ -247,14 +248,10 @@ foreign import javascript unsafe "ReactDOM.unmountComponentAtNode($1)" js_unmoun
 unmountComponentAtNode :: IsElement e => e -> IO Bool
 unmountComponentAtNode = js_unmountComponentAtNode . toElement
 
-foreign import javascript unsafe "ReactDOM.findDOMNode($1)" js_findDOMNode :: This ps st -> IO JSVal
+foreign import javascript unsafe "ReactDOM.findDOMNode($1)" js_findDOMNode :: ReactInstance ps -> IO (Nullable Element)
 
-findDOMNode :: MonadIO m => This ps st -> m (Maybe Element)
-findDOMNode c = liftIO $ do
-  val <- js_findDOMNode c
-  return $ if isObject val
-    then Just $ unsafeCoerce val
-    else Nothing
+findDOMNode :: MonadIO m => ReactInstance ps -> m (Maybe Element)
+findDOMNode c = liftIO (nullableToMaybe <$> js_findDOMNode c)
 
 {-
 -- React.Component
