@@ -142,7 +142,7 @@ instance Monoid (Props ps) where
     res <- assign oo
     return $ Props res
 
-newtype SanitizedHtml = SanitizedHtml JSString
+newtype SanitizedHtml = SanitizedHtml { fromSanitizedHtml :: JSString }
   deriving (Eq, Show)
 
 instance PToJSVal SanitizedHtml where
