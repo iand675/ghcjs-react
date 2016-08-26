@@ -97,9 +97,11 @@ instance PToJSVal (EventHandler ps st a) where
   pToJSVal (HsEventHandler _ v) = v
   pToJSVal (JSEventHandler v) = v
 
+-- | Note that performing a blocking action in the event handler prior to calling
+-- preventDefault will allow the event to occur.
 eventHandler :: (e -> ReactM ps st ()) -> RendererM (EventHandler ps st e)
 eventHandler f = RendererM $ do
-  cb <- liftIO $ syncCallback2 ThrowWouldBlock (\this e -> runReaderT (fromReactM $ f $ unsafeCoerce e) $ This this)
+  cb <- liftIO $ syncCallback2 ContinueAsync (\this e -> runReaderT (fromReactM $ f $ unsafeCoerce e) $ This this)
   let cleaner = (>> releaseCallback cb)
   modify cleaner
   return $ HsEventHandler cb (jsval cb)
