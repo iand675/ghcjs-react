@@ -11,6 +11,7 @@ import Control.Monad.Base
 import Control.Monad.Trans.Control
 import Control.Monad.Reader
 import Control.Monad.State
+import Data.Coerce (coerce)
 import Data.Foldable (traverse_)
 import qualified Data.Foldable as F
 import Data.Text (Text)
@@ -130,9 +131,9 @@ newtype Props ps = Props Object.Object
               deriving (IsJSVal)
 
 instance ToJSVal (Props ps) where
-  toJSVal (Props o) = return $ unsafeCoerce o
+  toJSVal (Props o) = return $ coerce o
 instance FromJSVal (Props ps) where
-  fromJSVal = return . Just . unsafeCoerce
+  fromJSVal = return . Just . coerce
 
 foreign import javascript "Object.assign.apply(null, $1)" assign :: JSArray -> IO Object.Object
 
@@ -177,7 +178,7 @@ newtype Array a = Array JSArray
                 deriving (IsJSVal)
 
 instance PToJSVal (Array a) where
-  pToJSVal = unsafeCoerce
+  pToJSVal = jsval
 
 array :: PToJSVal a => [a] -> Array a
 array = Array . fromList . map pToJSVal
@@ -266,7 +267,7 @@ getProps = do
   liftIO $ js_getProps v
 
 getProperties :: FromJSVal ps => ReactM ps st (Properties ps)
-getProperties = getProps >>= liftIO . readProperties . unsafeCoerce
+getProperties = getProps >>= liftIO . readProperties . coerce
 
 foreign import javascript unsafe "$1['state']" js_getState :: This ps st -> IO JSVal
 getState :: FromJSVal st => ReactM ps st st
@@ -287,7 +288,7 @@ setState' :: (ToJSVal st, FromJSVal st) => (st -> Props ps -> st) -> ReactM ps s
 setState' f = do
   cb <- liftIO $ syncCallback2' $ \st ps -> do
     stv <- readState st
-    liftIO $ toJSVal $ f stv (Props $ unsafeCoerce ps)
+    liftIO $ toJSVal $ f stv (Props $ coerce ps)
   v <- ask
   liftIO $ js_setState v (jsval cb)
   liftIO $ releaseCallback cb
@@ -380,7 +381,7 @@ readProperties v = do
   ps <- fromJSVal v
   case ps of
     Nothing -> printWhatever v >> Prelude.error "Failed to parse props"
-    Just r -> return (Properties r $ unsafeCoerce v)
+    Just r -> return (Properties r $ coerce v)
 
 readState :: FromJSVal st => JSVal -> IO st
 readState v = do
