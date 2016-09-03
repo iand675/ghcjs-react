@@ -49,18 +49,9 @@ import Language.Haskell.TH
 import System.IO.Unsafe
 import Unsafe.Coerce
 
-class ElementType e where
-  reactVal :: e -> JSVal
-
-instance ElementType JSString where
-  reactVal = jsval
-
-instance ElementType (ReactClass ps) where
-  reactVal (ReactClass c) = c
-
 newtype ReactClass ps = ReactClass JSVal
 
-newtype ReactElement = ReactElement { fromReactElement :: JSVal } -- Either function for stateless or component
+newtype ReactNode = ReactNode { fromReactNode :: JSVal } -- Either function for stateless or component
 
 newtype ReactInstance ps st = ReactInstance { fromReactInstance :: JSVal }
 
@@ -70,24 +61,24 @@ instanceThis = This . fromReactInstance
 instanceElement :: ReactInstance ps st -> Element
 instanceElement = unsafeCastGObject . GObject . fromReactInstance
 
-instance PToJSVal ReactElement where
-  pToJSVal = fromReactElement
+instance PToJSVal ReactNode where
+  pToJSVal = fromReactNode
 
-instance ToJSVal ReactElement where
-  toJSVal = return . fromReactElement
+instance ToJSVal ReactNode where
+  toJSVal = return . fromReactNode
 
-instance FromJSVal ReactElement where
-  fromJSVal = return . Just . ReactElement
+instance FromJSVal ReactNode where
+  fromJSVal = return . Just . ReactNode
 
-instance IsString ReactElement where
-  fromString = ReactElement . pToJSVal . JSString.pack
+instance IsString ReactNode where
+  fromString = ReactNode . pToJSVal . JSString.pack
 
 -- TODO these should probably be conditonally included only for GHCJS
-instance IsGObject ReactElement where
-  toGObject (ReactElement val) = GObject val
-  unsafeCastGObject (GObject val) = ReactElement val
+instance IsGObject ReactNode where
+  toGObject (ReactNode val) = GObject val
+  unsafeCastGObject (GObject val) = ReactNode val
 
-instance IsEventTarget ReactElement
+instance IsEventTarget ReactNode
 
 newtype PropName v = PropName JSString
 
@@ -167,7 +158,7 @@ instance ToJSVal SanitizedHtml where
   toJSVal = return . pToJSVal
   {-# INLINE toJSVal #-}
 
-children :: Props st -> Maybe (Array ReactElement)
+children :: Props st -> Maybe ReactNode
 children (Props o) =
   let p = unsafePerformIO (Object.getProp "children" o)
   in if isUndefined p then Nothing else Just (unsafeCoerce p)
@@ -193,36 +184,36 @@ printWhatever = js_printWhatever . unsafeCoerce
 
 foreign import javascript unsafe "React.createClass($1)" createClass :: ReactSpec ps st -> ReactClass ps
 
-foreign import javascript unsafe "React.createElement($1, $2, $3)" js_createElement :: JSVal -> Props ps -> JSVal -> ReactElement
+foreign import javascript unsafe "React.createElement($1, $2, $3)" js_createElement :: JSVal -> Props ps -> JSVal -> ReactNode
 
 nullish :: IsJSVal j => Maybe j -> JSVal
 nullish ma = case ma of
   Nothing -> jsNull
   Just a -> jsval a
 
-createElement :: (Applicative t, Foldable t, Foldable elems) => ReactClass ps -> t Prop -> elems ReactElement -> ReactElement
+createElement :: (Applicative t, Foldable t, Foldable elems) => ReactClass ps -> t Prop -> elems ReactNode -> ReactNode
 createElement t ps es = createElement' t (buildProps ps) (if Prelude.null es then Nothing else Just $ array $ F.toList es)
 
-createElement' :: ReactClass ps -> Props ps -> Maybe (Array ReactElement) -> ReactElement
-createElement' t ps ma = js_createElement (reactVal t) ps $ case ma of
+createElement' :: ReactClass ps -> Props ps -> Maybe (Array ReactNode) -> ReactNode
+createElement' t ps ma = js_createElement (coerce t) ps $ case ma of
   Nothing -> jsNull
   Just (Array a) -> jsval a
 
 newtype Factory ps = Factory {factoryVal :: JSVal}
 
-foreign import javascript "$1($2,$3)" fromFactory :: Factory ps -> Props ps -> JSVal -> ReactElement
+foreign import javascript "$1($2,$3)" fromFactory :: Factory ps -> Props ps -> JSVal -> ReactNode
 
 foreign import javascript unsafe "React.createFactory($1)" createFactory :: ReactClass ps -> Factory ps
 
-runFactory :: (Applicative t, Foldable t, Foldable elems) => Factory ps -> t Prop -> elems ReactElement -> ReactElement
+runFactory :: (Applicative t, Foldable t, Foldable elems) => Factory ps -> t Prop -> elems ReactNode -> ReactNode
 runFactory f ps es = runFactory' f (buildProps ps) (if Prelude.null es then Nothing else Just $ array $ F.toList es)
 
-runFactory' :: Factory ps -> Props ps -> Maybe (Array ReactElement) -> ReactElement
+runFactory' :: Factory ps -> Props ps -> Maybe (Array ReactNode) -> ReactNode
 runFactory' f ps ma = (fromFactory f) ps $ case ma of
   Nothing -> jsNull
   Just (Array a) -> jsval a
 
-foreign import javascript unsafe "React.cloneElement($1, $2, $3)" cloneElement :: ReactElement -> Props ps -> Array ReactElement -> ReactElement
+foreign import javascript unsafe "React.cloneElement($1, $2, $3)" cloneElement :: ReactNode -> Props ps -> Array ReactNode -> ReactNode
 
 foreign import javascript unsafe "React.isValidElement($1)" isValidElement :: JSVal -> IO Bool
 
@@ -232,9 +223,9 @@ foreign import javascript unsafe "React.isValidElement($1)" isValidElement :: JS
 -}
 -- ReactDOM
 
-foreign import javascript unsafe "ReactDOM.render($1, $2, $3)" js_render :: ReactElement -> Element -> JSVal -> IO ()
+foreign import javascript unsafe "ReactDOM.render($1, $2, $3)" js_render :: ReactNode -> Element -> JSVal -> IO ()
 
-render :: IsElement e => ReactElement -> e -> Maybe (This ps st -> IO ()) -> IO ()
+render :: IsElement e => ReactNode -> e -> Maybe (This ps st -> IO ()) -> IO ()
 render re e mf = case mf of
   Nothing -> js_render re (toElement e) jsUndefined
   Just f -> do
@@ -333,7 +324,7 @@ newtype RendererM a = RendererM {fromRendererM :: StateT (IO ()) IO a }
   deriving (Functor, Applicative, Monad)
 
 data Spec ps st = Spec
-            { renderSpec                :: RendererM (ReactM ps st ReactElement)
+            { renderSpec                :: RendererM (ReactM ps st ReactNode)
             , getInitialState           :: Maybe (ReactM ps st st)
             , getDefaultProps           :: Maybe (IO (Props ps))
             -- , propTypes                 :: Maybe PropTypechecker
@@ -355,10 +346,10 @@ data Spec ps st = Spec
             , componentWillUnmount      :: Maybe (ReactM ps st ())
             }
 
-spec :: (ToJSVal ps, FromJSVal ps) => RendererM (ReactM ps OnlyAttributes ReactElement) -> Spec ps OnlyAttributes
+spec :: (ToJSVal ps, FromJSVal ps) => RendererM (ReactM ps OnlyAttributes ReactNode) -> Spec ps OnlyAttributes
 spec f = Spec f Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing
 
-statefulSpec :: (ToJSVal ps, FromJSVal ps, ToJSVal st, FromJSVal st) => ReactM ps st st -> RendererM (ReactM ps st ReactElement) -> Spec ps st
+statefulSpec :: (ToJSVal ps, FromJSVal ps, ToJSVal st, FromJSVal st) => ReactM ps st st -> RendererM (ReactM ps st ReactNode) -> Spec ps st
 statefulSpec st f = Spec f (Just st) Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing
 
 data SpecMaintenance = SpecMaintenance { specMaintenanceFinalize :: IO () }
@@ -395,7 +386,7 @@ buildSpec s = do
   (renderer, cleanup) <- runStateT (fromRendererM $ renderSpec s) (return ())
   o <- Object.create
   renderCb <- syncCallback1' $ \this -> do
-    fromReactElement <$> runReaderT (fromReactM renderer) (This this)
+    fromReactNode <$> runReaderT (fromReactM renderer) (This this)
 
   Object.setProp "render" (captureThis renderCb) o
 
@@ -783,11 +774,11 @@ newtype TransitionEvent = TransitionEvent Object.Object
 instance SyntheticEvent TransitionEvent where
   type NativeEvent TransitionEvent = Transition.TransitionEvent
 
-reactText :: JSString -> ReactElement
-reactText = ReactElement . jsval
+reactText :: JSString -> ReactNode
+reactText = ReactNode . jsval
 
 -- Type constrained in order to avoid ambiguous types in DOM structures
-(//) :: (Maybe (Array ReactElement) -> ReactElement) -> [ReactElement] -> ReactElement
+(//) :: (Maybe (Array ReactNode) -> ReactNode) -> [ReactNode] -> ReactNode
 (//) lhs rhs = lhs $ Just $ array rhs
 
 noProps :: [Prop]
@@ -864,40 +855,40 @@ inheritProp' this str = unsafePerformIO $ do
   p <- js_getProp this str
   return $ Prop str p
 
-class ToReactElement a where
-  toReactElement :: a -> ReactElement
+class ToReactNode a where
+  toReactNode :: a -> ReactNode
 
-instance ToReactElement S.Text where
-  toReactElement = text . textToJSString
-  {-# INLINE toReactElement #-}
+instance ToReactNode S.Text where
+  toReactNode = text . textToJSString
+  {-# INLINE toReactNode #-}
 
-instance ToReactElement L.Text where
-  toReactElement = text . lazyTextToJSString
-  {-# INLINE toReactElement #-}
+instance ToReactNode L.Text where
+  toReactNode = text . lazyTextToJSString
+  {-# INLINE toReactNode #-}
 
-instance ToReactElement Bool where
-  toReactElement True = text ("true" :: JSString)
-  toReactElement False = text ("false" :: JSString)
-  {-# INLINE toReactElement #-}
+instance ToReactNode Bool where
+  toReactNode True = text ("true" :: JSString)
+  toReactNode False = text ("false" :: JSString)
+  {-# INLINE toReactNode #-}
 
-instance ToReactElement JSString where
-  toReactElement = text
+instance ToReactNode JSString where
+  toReactNode = text
 
-text' :: JSString -> ReactElement
+text' :: JSString -> ReactNode
 text' = text
 {-# INLINE text' #-}
 
 class ReactText a where
-  text :: a -> ReactElement
+  text :: a -> ReactNode
 
 instance ReactText JSString where
-  text = ReactElement . pToJSVal
+  text = ReactNode . pToJSVal
 
 instance ReactText Text where
-  text = ReactElement . pToJSVal
+  text = ReactNode . pToJSVal
 
 instance ReactText String where
-  text = ReactElement . pToJSVal
+  text = ReactNode . pToJSVal
 
 {-
 
