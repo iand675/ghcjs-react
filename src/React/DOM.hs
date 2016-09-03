@@ -15,20 +15,20 @@ import GHCJS.Marshal.Pure
 import GHCJS.Types
 import React
 
-foreign import javascript "React['DOM'][$1]($2, $3)" js_elem :: JSString -> Props ps -> JSVal -> ReactElement
-mkElem :: (Applicative t, Foldable t, F.Foldable elems) => JSString -> t Prop -> elems ReactElement -> ReactElement
+foreign import javascript "React['DOM'][$1]($2, $3)" js_elem :: JSString -> Props ps -> JSVal -> ReactNode
+mkElem :: (Applicative t, Foldable t, F.Foldable elems) => JSString -> t Prop -> elems ReactNode -> ReactNode
 mkElem str ps c = js_elem str (buildProps ps) (if Prelude.null c then jsNull else pToJSVal $ array $ F.toList c)
 
-mkEmptyElem :: (Applicative t, Foldable t) => JSString -> t Prop -> ReactElement
+mkEmptyElem :: (Applicative t, Foldable t) => JSString -> t Prop -> ReactNode
 mkEmptyElem str ps = js_elem str (buildProps ps) jsUndefined
 
 class ElementOrProp f t where
   symbolName :: JSString -> (f, Proxy t)
 
-instance (Applicative t, Foldable t, Foldable elems) => ElementOrProp (t Prop -> elems ReactElement -> ReactElement) a where
+instance (Applicative t, Foldable t, Foldable elems) => ElementOrProp (t Prop -> elems ReactNode -> ReactNode) a where
   symbolName n = (mkElem n, Proxy)
 
-instance (Applicative t, Foldable t) => ElementOrProp (t Prop -> ReactElement) a where
+instance (Applicative t, Foldable t) => ElementOrProp (t Prop -> ReactNode) a where
   symbolName n = (mkEmptyElem n, Proxy)
 
 instance ElementOrProp (PropName t) t where
@@ -45,367 +45,367 @@ instance IsProp (PropName t) t where
 instance PToJSVal t => IsProp (t -> Prop) t where
   mkProp str = (.:) (PropName str :: PropName t)
 
-a_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+a_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 a_ = mkElem "a"
 
-abbr_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+abbr_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 abbr_ = mkElem "abbr"
 
-address_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+address_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 address_ = mkElem "address"
 
-area_ :: (Applicative t, Foldable t) => t Prop -> ReactElement
+area_ :: (Applicative t, Foldable t) => t Prop -> ReactNode
 area_ = mkEmptyElem "area"
 
-article_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+article_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 article_ = mkElem "article"
 
-aside_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+aside_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 aside_ = mkElem "aside"
 
-audio_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+audio_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 audio_ = mkElem "audio"
 
-b_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+b_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 b_ = mkElem "b"
 
-base_ :: (Applicative t, Foldable t) => t Prop -> ReactElement
+base_ :: (Applicative t, Foldable t) => t Prop -> ReactNode
 base_ = mkEmptyElem "base"
 
-bdi_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+bdi_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 bdi_ = mkElem "bdi"
 
-bdo_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+bdo_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 bdo_ = mkElem "bdo"
 
-big_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+big_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 big_ = mkElem "big"
 
-blockquote_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+blockquote_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 blockquote_ = mkElem "blockquote"
 
-body_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+body_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 body_ = mkElem "body"
 
-br_ :: (Applicative t, Foldable t) => t Prop -> ReactElement
+br_ :: (Applicative t, Foldable t) => t Prop -> ReactNode
 br_ = mkEmptyElem "br"
 
-button_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+button_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 button_ = mkElem "button"
 
-canvas_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+canvas_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 canvas_ = mkElem "canvas"
 
-caption_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+caption_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 caption_ = mkElem "caption"
 
-circle_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+circle_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 circle_ = mkElem "circle"
 
-clipPath_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+clipPath_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 clipPath_ = mkElem "clipPath"
 
-code_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+code_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 code_ = mkElem "code"
 
-col_ :: (Applicative t, Foldable t) => t Prop -> ReactElement
+col_ :: (Applicative t, Foldable t) => t Prop -> ReactNode
 col_ = mkEmptyElem "col"
 
-colgroup_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+colgroup_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 colgroup_ = mkElem "colgroup"
 
-datalist_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+datalist_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 datalist_ = mkElem "datalist"
 
-dd_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+dd_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 dd_ = mkElem "dd"
 
-defs_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+defs_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 defs_ = mkElem "defs"
 
-del_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+del_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 del_ = mkElem "del"
 
-details_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+details_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 details_ = mkElem "details"
 
-dfn_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+dfn_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 dfn_ = mkElem "dfn"
 
-dialog_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+dialog_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 dialog_ = mkElem "dialog"
 
-div_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+div_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 div_ = mkElem "div"
 
-dl_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+dl_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 dl_ = mkElem "dl"
 
-dt_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+dt_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 dt_ = mkElem "dt"
 
-ellipse_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+ellipse_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 ellipse_ = mkElem "ellipse"
 
-em_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+em_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 em_ = mkElem "em"
 
-embed_ :: (Applicative t, Foldable t) => t Prop -> ReactElement
+embed_ :: (Applicative t, Foldable t) => t Prop -> ReactNode
 embed_ = mkEmptyElem "embed"
 
-fieldset_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+fieldset_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 fieldset_ = mkElem "fieldset"
 
-figcaption_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+figcaption_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 figcaption_ = mkElem "figcaption"
 
-figure_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+figure_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 figure_ = mkElem "figure"
 
-footer_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+footer_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 footer_ = mkElem "footer"
 
-g_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+g_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 g_ = mkElem "g"
 
-h1_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+h1_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 h1_ = mkElem "h1"
 
-h2_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+h2_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 h2_ = mkElem "h2"
 
-h3_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+h3_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 h3_ = mkElem "h3"
 
-h4_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+h4_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 h4_ = mkElem "h4"
 
-h5_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+h5_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 h5_ = mkElem "h5"
 
-h6_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+h6_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 h6_ = mkElem "h6"
 
-head_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+head_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 head_ = mkElem "head"
 
-header_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+header_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 header_ = mkElem "header"
 
-hgroup_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+hgroup_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 hgroup_ = mkElem "hgroup"
 
-hr_ :: (Applicative t, Foldable t) => t Prop -> ReactElement
+hr_ :: (Applicative t, Foldable t) => t Prop -> ReactNode
 hr_ = mkEmptyElem "hr"
 
-html_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+html_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 html_ = mkElem "html"
 
-i_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+i_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 i_ = mkElem "i"
 
-iframe_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+iframe_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 iframe_ = mkElem "iframe"
 
-image_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+image_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 image_ = mkElem "image"
 
-img_ :: (Applicative t, Foldable t) => t Prop -> ReactElement
+img_ :: (Applicative t, Foldable t) => t Prop -> ReactNode
 img_ = mkEmptyElem "img"
 
-input_ :: (Applicative t, Foldable t) => t Prop -> ReactElement
+input_ :: (Applicative t, Foldable t) => t Prop -> ReactNode
 input_ = mkEmptyElem "input"
 
-ins_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+ins_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 ins_ = mkElem "ins"
 
-kbd_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+kbd_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 kbd_ = mkElem "kbd"
 
-keygen_ :: (Applicative t, Foldable t) => t Prop -> ReactElement
+keygen_ :: (Applicative t, Foldable t) => t Prop -> ReactNode
 keygen_ = mkEmptyElem "keygen"
 
-legend_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+legend_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 legend_ = mkElem "legend"
 
-li_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+li_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 li_ = mkElem "li"
 
-line_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+line_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 line_ = mkElem "line"
 
-linearGradient_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+linearGradient_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 linearGradient_ = mkElem "linearGradient"
 
-link_ :: (Applicative t, Foldable t) => t Prop -> ReactElement
+link_ :: (Applicative t, Foldable t) => t Prop -> ReactNode
 link_ = mkEmptyElem "link"
 
-main_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+main_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 main_ = mkElem "main"
 
-map_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+map_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 map_ = mkElem "map"
 
-mark_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+mark_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 mark_ = mkElem "mark"
 
-menu_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+menu_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 menu_ = mkElem "menu"
 
-menuitem_ :: (Applicative t, Foldable t) => t Prop -> ReactElement
+menuitem_ :: (Applicative t, Foldable t) => t Prop -> ReactNode
 menuitem_ = mkEmptyElem "menuitem"
 
-meta_ :: (Applicative t, Foldable t) => t Prop -> ReactElement
+meta_ :: (Applicative t, Foldable t) => t Prop -> ReactNode
 meta_ = mkEmptyElem "meta"
 
-meter_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+meter_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 meter_ = mkElem "meter"
 
-nav_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+nav_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 nav_ = mkElem "nav"
 
-noscript_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+noscript_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 noscript_ = mkElem "noscript"
 
-object_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+object_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 object_ = mkElem "object"
 
-ol_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+ol_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 ol_ = mkElem "ol"
 
-optgroup_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+optgroup_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 optgroup_ = mkElem "optgroup"
 
-option_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+option_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 option_ = mkElem "option"
 
-output_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+output_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 output_ = mkElem "output"
 
-p_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+p_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 p_ = mkElem "p"
 
-param_ :: (Applicative t, Foldable t) => t Prop -> ReactElement
+param_ :: (Applicative t, Foldable t) => t Prop -> ReactNode
 param_ = mkEmptyElem "param"
 
-path_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+path_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 path_ = mkElem "path"
 
-picture_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+picture_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 picture_ = mkElem "picture"
 
-polygon_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+polygon_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 polygon_ = mkElem "polygon"
 
-polyline_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+polyline_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 polyline_ = mkElem "polyline"
 
-pre_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+pre_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 pre_ = mkElem "pre"
 
-progress_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+progress_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 progress_ = mkElem "progress"
 
-q_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+q_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 q_ = mkElem "q"
 
-radialGradient_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+radialGradient_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 radialGradient_ = mkElem "radialGradient"
 
-rect_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+rect_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 rect_ = mkElem "rect"
 
-rp_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+rp_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 rp_ = mkElem "rp"
 
-rt_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+rt_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 rt_ = mkElem "rt"
 
-ruby_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+ruby_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 ruby_ = mkElem "ruby"
 
-s_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+s_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 s_ = mkElem "s"
 
-samp_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+samp_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 samp_ = mkElem "samp"
 
-script_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+script_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 script_ = mkElem "script"
 
-section_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+section_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 section_ = mkElem "section"
 
-select_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+select_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 select_ = mkElem "select"
 
-small_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+small_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 small_ = mkElem "small"
 
-source_ :: (Applicative t, Foldable t) => t Prop -> ReactElement
+source_ :: (Applicative t, Foldable t) => t Prop -> ReactNode
 source_ = mkEmptyElem "source"
 
-stop_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+stop_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 stop_ = mkElem "stop"
 
-strong_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+strong_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 strong_ = mkElem "strong"
 
-sub_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+sub_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 sub_ = mkElem "sub"
 
-svg_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+svg_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 svg_ = mkElem "svg"
 
-table_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+table_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 table_ = mkElem "table"
 
-tbody_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+tbody_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 tbody_ = mkElem "tbody"
 
-td_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+td_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 td_ = mkElem "td"
 
-text_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+text_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 text_ = mkElem "text"
 
-textarea_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+textarea_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 textarea_ = mkElem "textarea"
 
-tfoot_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+tfoot_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 tfoot_ = mkElem "tfoot"
 
-th_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+th_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 th_ = mkElem "th"
 
-thead_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+thead_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 thead_ = mkElem "thead"
 
-time_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+time_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 time_ = mkElem "time"
 
-tr_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+tr_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 tr_ = mkElem "tr"
 
-track_ :: (Applicative t, Foldable t) => t Prop -> ReactElement
+track_ :: (Applicative t, Foldable t) => t Prop -> ReactNode
 track_ = mkEmptyElem "track"
 
-tspan_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+tspan_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 tspan_ = mkElem "tspan"
 
-u_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+u_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 u_ = mkElem "u"
 
-ul_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+ul_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 ul_ = mkElem "ul"
 
-var_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+var_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 var_ = mkElem "var"
 
-video_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactElement -> ReactElement
+video_ :: (Applicative t, Foldable t, Foldable elems) => t Prop -> elems ReactNode -> ReactNode
 video_ = mkElem "video"
 
-wbr_ :: (Applicative t, Foldable t) => t Prop -> ReactElement
+wbr_ :: (Applicative t, Foldable t) => t Prop -> ReactNode
 wbr_ = mkEmptyElem "wbr"
 
 

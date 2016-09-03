@@ -10,13 +10,13 @@ import React.DOM (className_)
 
 foreign import javascript unsafe "React.addons.CSSTransitionGroup" js_cssTransitionGroup :: ReactClass OnlyAttributes
 
-cssTransition :: Props OnlyAttributes -> Maybe (Array ReactElement) -> ReactElement
+cssTransition :: Props OnlyAttributes -> Maybe (Array ReactNode) -> ReactNode
 cssTransition = runFactory' fact
   where
     fact = createFactory js_cssTransitionGroup
 {-# NOINLINE cssTransition #-}
 
-cssTransitionGroup :: (Foldable elems) => JSString -> TransitionGroup -> elems ReactElement -> ReactElement
+cssTransitionGroup :: (Foldable elems) => JSString -> TransitionGroup -> elems ReactNode -> ReactNode
 cssTransitionGroup cl g es = cssTransition builtProps $ if Prelude.null es
   then Nothing
   else Just $ array $ F.toList es
