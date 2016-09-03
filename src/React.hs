@@ -6,6 +6,7 @@
 {-# LANGUAGE TypeSynonymInstances       #-}
 {-# LANGUAGE FlexibleInstances          #-}
 {-# LANGUAGE StandaloneDeriving         #-}
+{-# LANGUAGE NamedFieldPuns             #-}
 module React where
 import Control.Monad.Base
 import Control.Monad.Trans.Control
@@ -46,6 +47,7 @@ import qualified JavaScript.Object as Object
 import qualified JavaScript.Object.Internal as OI
 import JavaScript.Array
 import Language.Haskell.TH
+import qualified Language.Haskell.TH.Syntax as THSyntax
 import System.IO.Unsafe
 import Unsafe.Coerce
 
@@ -345,6 +347,10 @@ data Spec ps st = Spec
             , componentDidUpdate        :: Maybe (Properties ps -> st -> ReactM ps st ())
             , componentWillUnmount      :: Maybe (ReactM ps st ())
             }
+
+defaultDisplayName :: JSString -> Spec ps st -> Spec ps st
+defaultDisplayName n spec@(Spec { displayName }) =
+  maybe (spec { displayName = Just n }) (const spec) displayName
 
 spec :: (ToJSVal ps, FromJSVal ps) => RendererM (ReactM ps OnlyAttributes ReactNode) -> Spec ps OnlyAttributes
 spec f = Spec f Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing
@@ -801,13 +807,12 @@ unsafeGetRef str = do
 
 makeClass :: String -> ExpQ -> DecsQ
 makeClass newName n = do
-  ds <- funD newName'
-        [ clause [] (normalB [e| createClass . fst . unsafePerformIO . buildSpec $ $(n)|]) []
-        ]
-  return $ [ds, noInlineFun]
+  ds <- funD newName' [ clause [] (normalB expr) [] ]
+  return [ds, noInlineFun]
   where
     newName' = mkName newName
     noInlineFun = PragmaD $ InlineP newName' NoInline FunLike AllPhases
+    expr = [e| createClass . fst . unsafePerformIO . buildSpec . defaultDisplayName $(THSyntax.lift newName) $ $(n) |]
 
 foreign import javascript unsafe "($1 ? $1.props[$2] : null)" js_getProp :: This ps st -> JSString -> IO JSVal
 foreign import javascript unsafe "$1[$2]" js_deref :: Props ps -> JSString -> IO JSVal
