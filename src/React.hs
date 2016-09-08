@@ -186,7 +186,7 @@ printWhatever = js_printWhatever . unsafeCoerce
 
 foreign import javascript unsafe "React.createClass($1)" createClass :: ReactSpec ps st -> ReactClass ps
 
-foreign import javascript unsafe "React.createElement($1, $2, $3)" js_createElement :: JSVal -> Props ps -> JSVal -> ReactNode
+foreign import javascript unsafe "React.createElement.apply(this, [$1, $2].concat($3))" js_createElement :: JSVal -> Props ps -> JSVal -> ReactNode
 
 nullish :: IsJSVal j => Maybe j -> JSVal
 nullish ma = case ma of
@@ -203,7 +203,7 @@ createElement' t ps ma = js_createElement (coerce t) ps $ case ma of
 
 newtype Factory ps = Factory {factoryVal :: JSVal}
 
-foreign import javascript "$1($2,$3)" fromFactory :: Factory ps -> Props ps -> JSVal -> ReactNode
+foreign import javascript "$1.apply(this, [$2].concat($3))" fromFactory :: Factory ps -> Props ps -> JSVal -> ReactNode
 
 foreign import javascript unsafe "React.createFactory($1)" createFactory :: ReactClass ps -> Factory ps
 
