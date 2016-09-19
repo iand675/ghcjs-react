@@ -10,7 +10,7 @@ import React.DOM (className_)
 
 foreign import javascript unsafe "React.addons.CSSTransitionGroup" js_cssTransitionGroup :: ReactClass OnlyAttributes
 
-cssTransition :: Props OnlyAttributes -> Maybe (Array ReactNode) -> ReactNode
+cssTransition :: ReactProps OnlyAttributes -> Maybe (Array ReactNode) -> ReactNode
 cssTransition = runFactory' fact
   where
     fact = createFactory js_cssTransitionGroup
