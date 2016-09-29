@@ -709,7 +709,7 @@ scrolling_ = mkProp "scrolling"
 seamless_ :: IsProp p JSString => p
 seamless_ = mkProp "seamless"
 
-selected_ :: IsProp p JSString => p
+selected_ :: IsProp p Bool => p
 selected_ = mkProp "selected"
 
 shape_ :: IsProp p JSString => p
