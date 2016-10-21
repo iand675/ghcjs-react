@@ -616,7 +616,7 @@ marginWidth_ = mkProp "marginWidth"
 max_ :: IsProp p JSString => p
 max_ = mkProp "max"
 
-maxLength_ :: IsProp p JSString => p
+maxLength_ :: IsProp p Int => p
 maxLength_ = mkProp "maxLength"
 
 media_ :: IsProp p JSString => p
@@ -631,7 +631,7 @@ method_ = mkProp "method"
 min_ :: IsProp p JSString => p
 min_ = mkProp "min"
 
-minLength_ :: IsProp p JSString => p
+minLength_ :: IsProp p Int => p
 minLength_ = mkProp "minLength"
 
 multiple_ :: IsProp p JSString => p
