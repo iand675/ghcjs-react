@@ -15,7 +15,7 @@ import GHCJS.Marshal.Pure
 import GHCJS.Types
 import React
 
-foreign import javascript "React['DOM'][$1].apply(this, [$2].concat($3))" js_elem :: JSString -> Props ps -> JSVal -> ReactNode
+foreign import javascript "React['DOM'][$1].apply(this, [$2].concat($3))" js_elem :: JSString -> ReactProps ps -> JSVal -> ReactNode
 mkElem :: (Applicative t, Foldable t, F.Foldable elems) => JSString -> t Prop -> elems ReactNode -> ReactNode
 mkElem str ps c = js_elem str (buildProps ps) (if Prelude.null c then jsNull else pToJSVal $ array $ F.toList c)
 
